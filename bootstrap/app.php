@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Bahasa (ID | EN) mengikuti pilihan pengguna di session
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         // Tamu yang membuka halaman admin diarahkan ke login admin, bukan login pengguna
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin', 'admin/*')
             ? route('admin.login')

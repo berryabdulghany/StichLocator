@@ -1,66 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | Tailor Finder</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full text-center">
-    <div class="mb-6">
-      <img src="https://cdn-icons-png.flaticon.com/512/2972/2972072.png" alt="Tailor Icon" class="w-16 mx-auto">
-      <h2 class="text-2xl font-bold text-gray-700 mt-2">Login to StitchLocator</h2>
-      <p class="text-sm text-gray-500">Find the best tailors near you!</p>
+@extends('layouts.auth', ['title' => __('Log in')])
+
+@section('content')
+    <div class="mb-6 text-center">
+        <h1 class="text-2xl font-bold text-stone-900">{{ __('Welcome back') }}</h1>
+        <p class="mt-1 text-sm text-stone-500">{{ __('Log in to find the best tailors near you.') }}</p>
     </div>
 
-    <!-- Session Messages -->
     @if (session('success'))
-        <div class="bg-green-100 text-green-700 p-3 rounded-lg mb-4 text-sm">
-            {{ session('success') }}
-        </div>
+        <div class="alert-success mb-4">{{ session('success') }}</div>
     @endif
 
     @if ($errors->any())
-        <div class="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
+        <div class="alert-error mb-4">
             @foreach ($errors->all() as $error)
                 <p>{{ $error }}</p>
             @endforeach
         </div>
     @endif
-    
+
     <form action="{{ route('login.process') }}" method="POST" class="space-y-4">
-      @csrf
-      <div>
-        <label class="block text-gray-700 text-sm font-semibold mb-1">Email</label>
-        <input type="email" name="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your email" required />
-      </div>
-      
-      <div class="relative">
-        <label class="block text-gray-700 text-sm font-semibold mb-1">Password</label>
-        <input type="password" name="password" id="passwordInput" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your password" required />
-        <i class="bx bx-hide absolute right-4 top-10 cursor-pointer text-gray-500" onclick="togglePasswordVisibility()"></i>
-      </div>
-      
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Login Now</button>
+        @csrf
+        <div>
+            <label for="email" class="label">{{ __('Email') }}</label>
+            <input type="email" name="email" id="email" value="{{ old('email') }}" class="input"
+                   placeholder="nama@email.com" autocomplete="email" required autofocus>
+        </div>
+
+        <div>
+            <label for="passwordInput" class="label">{{ __('Password') }}</label>
+            <div class="relative">
+                <input type="password" name="password" id="passwordInput" class="input pr-10"
+                       autocomplete="current-password" required>
+                <button type="button" class="absolute inset-y-0 right-0 flex items-center px-3 text-stone-400 hover:text-stone-700"
+                        data-target="passwordInput" onclick="togglePasswordVisibility(this)" aria-label="{{ __('Show password') }}">
+                    <i class="ti ti-eye-off" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary w-full">{{ __('Log in') }}</button>
     </form>
-    
-    <p class="mt-4 text-sm text-gray-500">Not yet a member? <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Signup now</a></p>
-  </div>
-  
-  <script>
-    function togglePasswordVisibility() {
-      var passwordInput = document.getElementById("passwordInput");
-      var toggleIcon = document.querySelector(".bx-hide");
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        toggleIcon.classList.replace("bx-hide", "bx-show");
-      } else {
-        passwordInput.type = "password";
-        toggleIcon.classList.replace("bx-show", "bx-hide");
-      }
-    }
-  </script>
-</body>
-</html>
+
+    <p class="mt-6 text-center text-sm text-stone-500">
+        {{ __("Don't have an account?") }}
+        <a href="{{ route('register') }}" class="font-semibold text-navy-700 hover:underline">{{ __('Sign up') }}</a>
+    </p>
+@endsection

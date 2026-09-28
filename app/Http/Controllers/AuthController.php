@@ -34,7 +34,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        return redirect()->route('login')->with('success', 'Account created successfully! Please login.');
+        return redirect()->route('login')->with('success', __('Account created. Please log in.'));
     }
 
     // Tampilkan halaman login
@@ -53,10 +53,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
+            return redirect()->intended(route('dashboard'))->with('success', __('Welcome back!'));
         }
 
-        return back()->withErrors(['email' => 'Invalid email or password']);
+        return back()
+            ->withErrors(['email' => __('Invalid email or password.')])
+            ->onlyInput('email');
     }
 
     public function showProfile()
@@ -92,7 +94,7 @@ class AuthController extends Controller
 
         $user->save();
 
-        return back()->with('status', 'Profile updated successfully!');
+        return back()->with('status', __('Profile updated.'));
     }
 
     public function logout(Request $request)
@@ -100,6 +102,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('dashboard')->with('success', 'You have been logged out.');
+        return redirect()->route('dashboard')->with('success', __('You have been logged out.'));
     }
 }

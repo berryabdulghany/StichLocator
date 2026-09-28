@@ -1,14 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>StitchLocator</title>
-    @vite('resources/css/app.css')
+    @include('partials.head')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
-<body class="bg-gray-100">
+<body class="bg-white">
     <div class="flex h-screen overflow-x-hidden">
         <!-- Sidebar -->
         @include('components.sidebar')
@@ -16,52 +12,47 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             @include('components.navbar')
-            
+
             <!-- Content -->
-            <main class="flex-1 bg-gray-100 relative">
+            <main class="flex-1 bg-stone-50 relative">
                 @yield('content')
             </main>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // Escape teks sebelum dimasukkan ke innerHTML / popup (mencegah XSS)
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-    </script>
     @stack('scripts')
 
     <!-- Profile Modal -->
     <div id="profileModal" class="absolute top-16 right-4 z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-xs mx-auto relative text-center border border-gray-200">
-            <button onclick="closeProfileModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+        <div class="floating relative mx-auto w-72 p-6 text-center">
+            <button onclick="closeProfileModal()" class="absolute right-2 top-2 text-stone-400 hover:text-stone-700" aria-label="{{ __('Close') }}">
+                <i class="ti ti-x text-lg" aria-hidden="true"></i>
+            </button>
             @auth
-                <p class="text-sm text-gray-500 mb-2">{{ Auth::user()->email }}</p>
-                <div class="mb-4">
+                <p class="mb-3 text-sm text-stone-500">{{ Auth::user()->email }}</p>
+                <div class="mb-3">
                     @if(Auth::user()->profile_picture)
-                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile Picture" class="w-20 h-20 rounded-full object-cover mx-auto border-2 border-blue-500">
+                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="{{ __('Profile picture') }}" class="mx-auto h-20 w-20 rounded-full border-2 border-navy-600 object-cover">
                     @else
-                        <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 mx-auto border-2 border-blue-500">
-                            <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                        <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-2 border-navy-600 bg-navy-50 text-navy-700">
+                            <i class="ti ti-user text-4xl" aria-hidden="true"></i>
                         </div>
                     @endif
                 </div>
-                <h2 class="text-lg font-bold text-gray-800 mb-4">Halo, {{ Auth::user()->name }}!</h2>
-                <a href="{{ route('user.profile') }}" class="block w-full bg-blue-100 text-blue-700 py-2 rounded-lg hover:bg-blue-200 text-center mb-2 text-sm">Kelola Akun Anda</a>
+                <h2 class="mb-4 text-lg font-bold text-stone-800">{{ __('Hi, :name!', ['name' => Auth::user()->name]) }}</h2>
+                <a href="{{ route('user.profile') }}" class="btn-outline mb-2 w-full">
+                    <i class="ti ti-settings" aria-hidden="true"></i>{{ __('Manage your account') }}
+                </a>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 text-sm">Logout</button>
+                    <button type="submit" class="btn-ghost w-full text-red-600 hover:bg-red-50">
+                        <i class="ti ti-logout" aria-hidden="true"></i>{{ __('Log out') }}
+                    </button>
                 </form>
             @else
-                <p class="text-gray-700 mb-4">Anda belum login.</p>
-                <a href="{{ route('login') }}" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-center">Login</a>
+                <p class="mb-4 text-stone-600">{{ __('You are not logged in.') }}</p>
+                <a href="{{ route('login') }}" class="btn-primary w-full">{{ __('Log in') }}</a>
             @endauth
         </div>
     </div>

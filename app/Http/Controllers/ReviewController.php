@@ -80,7 +80,7 @@ class ReviewController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Review berhasil ditambahkan',
+            'message' => __('Review added.'),
             'data' => $review
         ]);
     }
@@ -95,7 +95,7 @@ class ReviewController extends Controller
         if (! $review) {
             return response()->json([
                 'success' => false,
-                'message' => 'Review not found'
+                'message' => __('Review not found.')
             ], 404);
         }
 
@@ -130,7 +130,7 @@ class ReviewController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Review berhasil diperbarui',
+            'message' => __('Review updated.'),
             'data' => $review
         ]);
     }
@@ -149,7 +149,7 @@ class ReviewController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Review berhasil dihapus'
+            'message' => __('Review deleted.')
         ]);
     }
 
