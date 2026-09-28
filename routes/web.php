@@ -5,6 +5,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
@@ -15,6 +16,9 @@ use App\Http\Controllers\AdminUserController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+// Ganti bahasa (ID | EN)
+Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
 // Data publik (read-only) untuk peta & detail penjahit
 Route::get('/locations', [LocationController::class, 'getLocations'])->name('locations.get');

@@ -1,3 +1,131 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+|--------------------------------------------------------------------------
+| StichLocator design system
+|--------------------------------------------------------------------------
+| Warna utama navy, pendamping terracotta, base putih dengan netral stone.
+| Komponen di bawah dipakai ulang di seluruh halaman pengguna.
+*/
+
+@layer base {
+    html {
+        @apply antialiased;
+    }
+
+    body {
+        @apply bg-white font-sans text-stone-800;
+    }
+
+    :focus-visible {
+        @apply outline-none ring-2 ring-navy-600/60 ring-offset-1;
+    }
+}
+
+@layer components {
+    /* Tombol */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition
+               disabled:cursor-not-allowed disabled:opacity-60;
+    }
+    .btn-primary {
+        @apply btn bg-navy-700 text-white hover:bg-navy-800;
+    }
+    .btn-accent {
+        @apply btn bg-terra-500 text-white hover:bg-terra-600;
+    }
+    .btn-outline {
+        @apply btn border border-stone-300 bg-white text-stone-700 hover:border-stone-400 hover:bg-stone-50;
+    }
+    .btn-ghost {
+        @apply btn text-stone-600 hover:bg-stone-100;
+    }
+    .btn-danger {
+        @apply btn bg-red-600 text-white hover:bg-red-700;
+    }
+    .btn-icon {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-stone-300 bg-white text-stone-700
+               transition hover:bg-stone-50;
+    }
+
+    /* Form */
+    .label {
+        @apply mb-1 block text-sm font-medium text-stone-700;
+    }
+    .input {
+        @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 placeholder-stone-400
+               transition focus:border-navy-600 focus:outline-none focus:ring-2 focus:ring-navy-600/20;
+    }
+
+    /* Chip filter kategori */
+    .chip {
+        @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-stone-300 bg-white px-3 py-1.5
+               text-xs font-medium text-stone-600 transition hover:border-stone-400;
+    }
+    .chip-active {
+        @apply border-navy-700 bg-navy-50 text-navy-700;
+    }
+
+    /* Badge */
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+    }
+    .badge-open {
+        @apply badge bg-emerald-50 text-emerald-700;
+    }
+    .badge-closed {
+        @apply badge bg-red-50 text-red-700;
+    }
+    .badge-tag {
+        @apply badge bg-terra-50 text-terra-800;
+    }
+
+    /* Kartu */
+    .card {
+        @apply rounded-xl border border-stone-200 bg-white;
+    }
+    /* Motif jahitan: garis putus-putus seperti jahitan kain */
+    .card-stitch {
+        @apply rounded-xl border border-dashed border-stitch bg-white;
+    }
+    .floating {
+        @apply rounded-xl border border-stone-200 bg-white shadow-sm;
+    }
+
+    /* Alert */
+    .alert {
+        @apply rounded-lg px-4 py-3 text-sm;
+    }
+    .alert-success {
+        @apply alert bg-emerald-50 text-emerald-800;
+    }
+    .alert-error {
+        @apply alert bg-red-50 text-red-800;
+    }
+
+    /* Rating */
+    .rating-star {
+        @apply text-terra-500;
+    }
+}
+
+/* Redam warna tile OSM supaya peta terlihat clean (base putih) */
+.map-tiles-muted {
+    filter: saturate(0.35) brightness(1.04) contrast(0.95);
+}
+
+/* Leaflet: samakan kontrol peta dengan gaya kartu StichLocator */
+.leaflet-container {
+    @apply font-sans;
+}
+.leaflet-bar {
+    @apply overflow-hidden rounded-lg border border-stone-200 shadow-sm !important;
+}
+.leaflet-bar a {
+    @apply border-stone-200 text-stone-700 !important;
+}
+.leaflet-popup-content-wrapper {
+    @apply rounded-xl shadow-md;
+}

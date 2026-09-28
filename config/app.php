@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'StichLocator'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,9 +78,20 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'id'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | Bahasa yang bisa dipilih pengguna lewat tombol switch ID | EN.
+    |
+    */
+
+    'supported_locales' => ['id', 'en'],
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
