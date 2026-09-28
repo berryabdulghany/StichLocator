@@ -347,7 +347,7 @@
                                     <div class="flex text-yellow-400">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
                                     <span class="text-gray-600 text-xs ml-auto">${new Date(review.created_at).toLocaleDateString()}</span>
                                 </div>
-                                <p class="text-gray-800 text-sm">${review.review}</p>
+                                <p class="text-gray-800 text-sm">${escapeHtml(review.review)}</p>
                             `;
                             if (reviewList) reviewList.appendChild(reviewItem);
                         });
@@ -408,7 +408,6 @@
                     }
                 });
         }
-    </script>
     </script>
 @endpush
 

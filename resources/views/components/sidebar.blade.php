@@ -44,7 +44,7 @@
             @foreach ($locations as $location)
             <div id="location-item-{{ $location->id }}" 
                  class="location-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 border-l-4 border-transparent transition-all duration-200"
-                 onclick="showDetailsAndFly(this, {{ $location->id }}, '{{ addslashes($location->name) }}', '{{ addslashes($location->address) }}', '{{ $location->telepon }}', {{ $location->rating ?? 0 }}, {{ $location->reviews_count ?? 0 }}, '{{ $location->status }}', '{{ $location->image_url }}', {{ $location->lat }}, {{ $location->lng }}, '{{ addslashes($location->opening_hours) }}')"
+                 onclick="showDetailsAndFly(this, {{ (int) $location->id }}, {{ Js::from($location->name) }}, {{ Js::from($location->address) }}, {{ Js::from($location->telepon) }}, {{ (float) ($location->rating ?? 0) }}, {{ (int) ($location->reviews_count ?? 0) }}, {{ Js::from($location->status) }}, {{ Js::from($location->image_url) }}, {{ (float) $location->lat }}, {{ (float) $location->lng }}, {{ Js::from($location->opening_hours) }})"
                  data-name="{{ strtolower($location->name) }}"
                  data-address="{{ strtolower($location->address) }}"
                  data-rating="{{ $location->rating ?? 0 }}"

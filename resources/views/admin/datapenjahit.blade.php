@@ -95,6 +95,18 @@
                     <div class="card mb-4">
                         <div class="card-header"><i class="fas fa-table me-1"></i> Tambah/Edit Data Penjahit</div>
                         <div class="card-body">
+                            @if (session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             <form id="formPenjahit" action="{{ isset($location) ? route('penjahit.update', $location->id) : route('penjahit.store') }}" method="POST">
                                 @csrf
                                 @if (isset($location))
@@ -103,31 +115,27 @@
                                 @endif
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Nama Tempat Jahit</label>
-                                    <input type="text" class="form-control" id="name" name="name" value="{{ isset($location) ? $location->name : '' }}" required>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $location->name ?? '') }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Alamat</label>
-                                    <input type="text" class="form-control" id="address" name="address" value="{{ isset($location) ? $location->address : '' }}" required>
+                                    <input type="text" class="form-control" id="address" name="address" value="{{ old('address', $location->address ?? '') }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="telepon" class="form-label">Nomor Telepon</label>
-                                    <input type="text" class="form-control" id="telepon" name="telepon" value="{{ isset($location) ? $location->telepon : '' }}" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="reviews" class="form-label">Jumlah Review</label>
-                                    <input type="number" class="form-control" id="reviews" name="reviews" value="{{ isset($location) ? $location->reviews : '' }}" required>
+                                    <input type="text" class="form-control" id="telepon" name="telepon" value="{{ old('telepon', $location->telepon ?? '') }}">
                                 </div>
                                 <div class="mb-3">
                                     <label for="image_url" class="form-label">URL Gambar</label>
-                                    <input type="text" class="form-control" id="image_url" name="image_url" value="{{ isset($location) ? $location->image_url : '' }}" required>
+                                    <input type="text" class="form-control" id="image_url" name="image_url" value="{{ old('image_url', $location->image_url ?? '') }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="lat" class="form-label">Latitude</label>
-                                    <input type="text" class="form-control" id="lat" name="lat" value="{{ isset($location) ? $location->lat : '' }}" required>
+                                    <input type="text" class="form-control" id="lat" name="lat" value="{{ old('lat', $location->lat ?? '') }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="lng" class="form-label">Longitude</label>
-                                    <input type="text" class="form-control" id="lng" name="lng" value="{{ isset($location) ? $location->lng : '' }}" required>
+                                    <input type="text" class="form-control" id="lng" name="lng" value="{{ old('lng', $location->lng ?? '') }}" required>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -183,14 +191,14 @@
                                             <form action="{{ route('penjahit.update', $location->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="button" class="btn btn-warning btn-sm" onclick="editLocation({{ $location }})">Edit</button>
+                                                <button type="button" class="btn btn-warning btn-sm" onclick="editLocation({{ Js::from($location) }})">Edit</button>
                                             </form>
 
                                             <!-- Tombol Hapus -->
                                             <form action="{{ route('penjahit.destroy', $location->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data penjahit ini beserta semua ulasannya?')">Hapus</button>
                                             </form>
                                         </td>
                                     </tr>
@@ -227,7 +235,7 @@
         });
 
         function editLocation(location) {
-            document.getElementById('formPenjahit').action = '/penjahit/' + location.id;
+            document.getElementById('formPenjahit').action = @js(url('admin/penjahit')) + '/' + location.id;
             document.getElementById('formPenjahit').method = "POST";
 
             let existingMethodInput = document.querySelector("input[name='_method']");
@@ -244,8 +252,7 @@
             document.getElementById('name').value = location.name;
             document.getElementById('address').value = location.address;
             document.getElementById('telepon').value = location.telepon;
-            
-            document.getElementById('reviews').value = location.reviews;
+
             document.getElementById('image_url').value = location.image_url;
             document.getElementById('lat').value = location.lat;
             document.getElementById('lng').value = location.lng;

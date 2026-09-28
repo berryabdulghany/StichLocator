@@ -10,7 +10,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Data Lokasi dari Controller
 var locations = @json($locations);
-console.log("Data lokasi:", locations);
 
 // Menyimpan daftar marker
 var markers = {};
@@ -19,7 +18,7 @@ var markers = {};
 locations.forEach(function(location) {
     var marker = L.marker([location.lat, location.lng])
         .addTo(map)
-        .bindPopup(`<b>${location.name}</b><br>${location.address}`);
+        .bindPopup(`<b>${escapeHtml(location.name)}</b><br>${escapeHtml(location.address)}`);
 
     marker.locationData = location;
 

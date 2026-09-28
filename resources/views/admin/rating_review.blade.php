@@ -325,6 +325,16 @@
         let currentDeleteId;
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+        // Escape teks sebelum dimasukkan ke innerHTML (mencegah XSS)
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -420,7 +430,7 @@
                 let options = `<option value="">-- Pilih Penjahit --</option>`;
                 if (Array.isArray(data)) {
                     data.forEach(location => {
-                        options += `<option value="${location.id}">${location.name}</option>`;
+                        options += `<option value="${Number(location.id)}">${escapeHtml(location.name)}</option>`;
                     });
                 }
                 select.innerHTML = options;
@@ -457,14 +467,14 @@
 
                         let row = tabel.insertRow();
                         row.innerHTML = `
-                            <td>${item.nama_penjahit}</td>
+                            <td>${escapeHtml(item.nama_penjahit)}</td>
                             <td>${stars}</td>
-                            <td>${item.review}</td>
+                            <td>${escapeHtml(item.review)}</td>
                             <td>
-                                <button class="btn btn-warning btn-action" onclick="showEditModal(${item.id})">
+                                <button class="btn btn-warning btn-action" onclick="showEditModal(${Number(item.id)})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger btn-action" onclick="showDeleteModal(${item.id})">
+                                <button class="btn btn-danger btn-action" onclick="showDeleteModal(${Number(item.id)})">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </td>

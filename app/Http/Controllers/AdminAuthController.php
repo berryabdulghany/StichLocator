@@ -43,11 +43,15 @@ class AdminAuthController extends Controller
 
     public function showRegisterForm()
     {
+        $this->ensureRegistrationOpen();
+
         return view('admin.register');
     }
 
     public function register(Request $request)
     {
+        $this->ensureRegistrationOpen();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:admins',
@@ -63,5 +67,19 @@ class AdminAuthController extends Controller
         Auth::guard('admin')->login($admin);
 
         return redirect()->route('admin.dashboard');
+    }
+
+    /**
+     * Registrasi admin publik hanya untuk membuat admin pertama.
+     * Setelah ada admin, form ini ditutup agar orang lain tidak bisa mendaftar sebagai admin.
+     */
+    public static function registrationOpen(): bool
+    {
+        return ! Admin::exists();
+    }
+
+    private function ensureRegistrationOpen(): void
+    {
+        abort_unless(self::registrationOpen(), 403, 'Registrasi admin sudah ditutup.');
     }
 }

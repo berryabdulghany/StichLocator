@@ -40,9 +40,11 @@
                             </div>
                         </form>
                         
-                        <div class="mt-3 text-center">
-                            <p>Don't have an account? <a href="{{ route('admin.register') }}">Register here</a></p>
-                        </div>
+                        @if (\App\Http\Controllers\AdminAuthController::registrationOpen())
+                            <div class="mt-3 text-center">
+                                <p>Don't have an account? <a href="{{ route('admin.register') }}">Register here</a></p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
