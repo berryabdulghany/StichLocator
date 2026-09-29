@@ -281,12 +281,15 @@ class Location extends Model
     |--------------------------------------------------------------------------
     */
 
-    /** Wilayah dari alamat, misalnya "Jakarta Selatan" */
+    /**
+     * Wilayah (kecamatan) dari alamat berformat "Jalan, Kecamatan, Kota".
+     * Contoh: "Jl. Buah Batu No. 45, Lengkong, Kota Bandung" -> "Lengkong".
+     */
     public function area(): ?string
     {
-        return preg_match('/Jakarta\s+(Pusat|Selatan|Timur|Utara|Barat)/i', (string) $this->address, $m)
-            ? 'Jakarta ' . ucfirst(strtolower($m[1]))
-            : null;
+        $parts = array_values(array_filter(array_map('trim', explode(',', (string) $this->address))));
+
+        return count($parts) >= 3 ? $parts[count($parts) - 2] : null;
     }
 
     /** Pesan pembuka WhatsApp yang sudah terisi */

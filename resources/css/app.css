@@ -111,9 +111,9 @@
     }
 }
 
-/* Redam warna tile OSM supaya peta terlihat clean (base putih) */
-.map-tiles-muted {
-    filter: grayscale(0.85) brightness(1.08) contrast(0.82);
+/* Cadangan tile OSM (tanpa WebGL): sedikit dilembutkan tapi tetap berwarna */
+.map-tiles-soft {
+    filter: saturate(0.85) brightness(1.04);
 }
 
 /* Leaflet: samakan kontrol peta dengan gaya kartu StichLocator */

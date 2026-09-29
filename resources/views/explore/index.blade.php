@@ -12,7 +12,7 @@
         <label class="ml-3 hidden min-w-0 border-l border-stone-200 pl-3 sm:block">
             <span class="block text-[11px] font-semibold text-stone-800">{{ __('Area') }}</span>
             <select id="search-area" class="w-full cursor-pointer border-0 bg-transparent p-0 pr-6 text-sm text-stone-700 focus:outline-none focus:ring-0">
-                <option value="">{{ __('All of Jakarta') }}</option>
+                <option value="">{{ __('All areas') }}</option>
                 @foreach ($areas as $area)
                     <option value="{{ $area }}">{{ $area }}</option>
                 @endforeach
