@@ -38,11 +38,22 @@
             <div class="flex items-center justify-between gap-2 border-b border-dashed border-stitch px-4 pb-3 pt-1 lg:pt-3">
                 <p id="results-count" class="text-sm font-semibold text-stone-800" aria-live="polite"></p>
                 <select id="sort-select" class="input w-auto py-1.5 pr-8 text-xs" aria-label="{{ __('Sort by') }}">
+                    <option value="distance" hidden disabled>{{ __('Nearest') }}</option>
                     <option value="recommended">{{ __('Recommended') }}</option>
                     <option value="rating">{{ __('Highest rated') }}</option>
                     <option value="price">{{ __('Lowest price') }}</option>
                     <option value="reviews">{{ __('Most reviewed') }}</option>
                 </select>
+            </div>
+
+            {{-- Radius "pita ukur", muncul setelah lokasi pengguna ditemukan --}}
+            <div id="radius-bar" class="hidden items-center gap-1.5 border-b border-dashed border-stitch px-4 py-2 text-xs">
+                <i class="ti ti-ruler-measure text-base text-navy-700" aria-hidden="true"></i>
+                <span class="mr-1 font-medium text-stone-600">{{ __('Radius') }}</span>
+                @foreach ([1, 2, 5, 10] as $km)
+                    <button type="button" class="chip px-2.5 py-1" data-radius="{{ $km * 1000 }}">{{ $km }} km</button>
+                @endforeach
+                <button type="button" class="chip px-2.5 py-1" data-radius="">{{ __('All') }}</button>
             </div>
 
             <ul id="tailor-list" class="flex-1 space-y-1 overflow-y-auto p-2"></ul>
@@ -79,13 +90,24 @@
                     <button type="button" class="map-chip" data-filter="homeVisit" aria-pressed="false">
                         <i class="ti ti-home-move" aria-hidden="true"></i>{{ __('Home visit') }}
                     </button>
+                    <button type="button" class="map-chip" data-filter="saved" aria-pressed="false">
+                        <i class="ti ti-bookmark" aria-hidden="true"></i>{{ __('Saved') }}
+                        <span id="saved-count" class="rounded-full bg-stone-100 px-1.5 text-xs text-stone-600"></span>
+                    </button>
                 </div>
             </nav>
 
-            <label class="floating absolute bottom-3 left-3 z-[1000] hidden cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium text-stone-700 lg:flex">
+            <label id="bounds-control" class="floating absolute bottom-3 left-3 z-[1000] hidden cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium text-stone-700 lg:flex">
                 <input id="bounds-toggle" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-navy-700 focus:ring-navy-600">
                 {{ __('Search as I move the map') }}
             </label>
+
+            {{-- Pesan singkat (misalnya izin lokasi ditolak) --}}
+            <div id="toast" role="status" aria-live="polite"
+                 class="pointer-events-none absolute left-1/2 top-16 z-[1200] hidden max-w-[90%] -translate-x-1/2 rounded-lg bg-stone-900/90 px-4 py-2 text-center text-sm text-white shadow-lg"></div>
+
+            {{-- Kartu pratinjau rute --}}
+            <div id="route-card" class="card-stitch absolute inset-x-3 bottom-[8.5rem] z-[1070] hidden p-3 shadow-lg lg:bottom-3 lg:left-3 lg:right-auto lg:w-[360px]"></div>
 
             {{-- Kartu preview saat marker diketuk (HP) --}}
             <div id="map-preview" class="card-stitch absolute inset-x-3 bottom-[8.5rem] z-[1060] hidden p-2 shadow-lg lg:hidden"></div>
@@ -115,6 +137,8 @@
             tailors: @json($tailors),
             categories: @json($categories),
             homeUrl: @json(route('dashboard')),
+            routeUrl: @json(route('route.preview')),
+            routingEnabled: @json(filled(config('services.openrouteservice.key'))),
         };
     </script>
     @vite('resources/js/explorer.js')

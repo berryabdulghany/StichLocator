@@ -252,3 +252,31 @@
 .nota-leader {
     @apply mx-2 flex-1 translate-y-[-0.3em] border-b border-dotted border-stone-400;
 }
+
+/* Titik lokasi pengguna dengan denyut */
+.sl-user-dot {
+    @apply relative block h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-navy-600;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.sl-user-dot::after {
+    content: '';
+    @apply absolute -inset-2 animate-ping rounded-full bg-navy-500/30;
+}
+
+/* Label radius "pita ukur" di tepi lingkaran */
+.sl-radius-label {
+    @apply inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-md border border-navy-700
+           bg-white px-1.5 py-0.5 text-[11px] font-bold text-navy-700 shadow-sm;
+}
+
+/* Tombol "Lokasi saya" sebagai kontrol Leaflet */
+.sl-locate {
+    @apply flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl text-navy-700 shadow-md ring-1 ring-black/5
+           transition hover:bg-stone-50;
+}
+.sl-locate.is-active {
+    @apply text-navy-600;
+}
+.sl-locate.is-loading i {
+    @apply animate-spin;
+}
