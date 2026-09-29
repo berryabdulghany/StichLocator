@@ -13,4 +13,26 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    // Pastikan hanya ada satu salinan Leaflet. Plugin markercluster dan maplibre-gl-leaflet
+    // menempel ke objek L yang sama; dua salinan membuat window.L tertimpa.
+    resolve: {
+        dedupe: ['leaflet'],
+    },
+    build: {
+        // Library peta dipisah ke chunk sendiri supaya di-cache browser terpisah dari kode aplikasi.
+        // MapLibre memang besar (~1 MB, ~300 KB gzip), jadi batas peringatan dinaikkan.
+        chunkSizeWarningLimit: 1300,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    maplibre: ['maplibre-gl', '@maplibre/maplibre-gl-leaflet'],
+                    leaflet: ['leaflet', 'leaflet.markercluster'],
+                },
+            },
+        },
+    },
+    optimizeDeps: {
+        include: ['leaflet', 'leaflet.markercluster', 'maplibre-gl', '@maplibre/maplibre-gl-leaflet'],
+        // MapLibre v5 dibutuhkan oleh gaya peta OpenFreeMap
+    },
 });
