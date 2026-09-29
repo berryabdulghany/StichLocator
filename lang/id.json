@@ -41,6 +41,7 @@
     "closes :time": "tutup :time",
     "Confirm new password": "Konfirmasi password baru",
     "Confirm password": "Konfirmasi password",
+    "Correct location": "Koreksi lokasi",
     "Could not calculate the route. Please try again.": "Rute tidak dapat dihitung. Silakan coba lagi.",
     "Could not copy the link. Copy it manually: :url": "Gagal menyalin tautan. Salin secara manual: :url",
     "Could not find your location. Please try again.": "Lokasi kamu tidak ditemukan. Silakan coba lagi.",
@@ -77,6 +78,7 @@
     "Language": "Bahasa",
     "Link copied to clipboard.": "Tautan disalin ke clipboard.",
     "Location permission denied. Allow location access in your browser to see nearby tailors.": "Izin lokasi ditolak. Izinkan akses lokasi di browser untuk melihat penjahit terdekat.",
+    "Location updated.": "Lokasi diperbarui.",
     "Log in": "Masuk",
     "Log in now": "Masuk sekarang",
     "Log in to find the best tailors near you.": "Masuk untuk menemukan penjahit terbaik di sekitarmu.",
@@ -153,6 +155,7 @@
     "Tailor list": "Daftar penjahit",
     "Tailor map": "Peta penjahit",
     "Tailor photo": "Foto penjahit",
+    "Tap the map at your location.": "Ketuk peta di lokasi kamu.",
     "Today :open–:close": "Hari ini :open–:close",
     "Travel mode": "Moda perjalanan",
     "Try another category or area.": "Coba kategori atau wilayah lain.",
@@ -167,5 +170,7 @@
     "You are not logged in.": "Kamu belum masuk.",
     "You have been logged out.": "Kamu telah keluar.",
     "You need to log in to write a review.": "Kamu perlu masuk untuk menulis ulasan.",
-    "Your browser does not support location.": "Browser kamu tidak mendukung fitur lokasi."
+    "Your browser does not support location.": "Browser kamu tidak mendukung fitur lokasi.",
+    "Your browser location is approximate (±:distance). Drag the blue dot or use \"Correct location\" to fix it.": "Lokasi dari browser kurang akurat (±:distance). Geser titik biru atau pakai \"Koreksi lokasi\" untuk memperbaikinya.",
+    "Your location. Drag to correct it.": "Lokasi kamu. Geser untuk mengoreksi."
 }
