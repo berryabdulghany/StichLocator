@@ -25,27 +25,6 @@
 @endsection
 
 @section('content')
-    {{-- Bar kategori + filter cepat --}}
-    <nav class="z-[1100] flex items-end gap-1 overflow-x-auto border-b border-stone-200 bg-white px-2 pt-2 scrollbar-hide lg:px-4" aria-label="{{ __('Categories') }}">
-        <button type="button" class="category-tab is-active" data-category="">
-            <i class="ti ti-hanger" aria-hidden="true"></i>{{ __('All') }}
-        </button>
-        @foreach ($categories as $category)
-            <button type="button" class="category-tab" data-category="{{ $category['value'] }}">
-                <i class="ti ti-{{ $category['icon'] }}" aria-hidden="true"></i>{{ $category['label'] }}
-            </button>
-        @endforeach
-
-        <div class="ml-auto flex shrink-0 items-center gap-2 pb-2 pl-4">
-            <button type="button" class="chip" data-filter="open" aria-pressed="false">
-                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>{{ __('Open now') }}
-            </button>
-            <button type="button" class="chip" data-filter="homeVisit" aria-pressed="false">
-                <i class="ti ti-home-move" aria-hidden="true"></i>{{ __('Home visit') }}
-            </button>
-        </div>
-    </nav>
-
     <div class="relative flex min-h-0 flex-1">
         {{-- Daftar penjahit: kolom kiri di desktop, bottom sheet di HP --}}
         <section id="results-panel" aria-label="{{ __('Tailor list') }}"
@@ -80,7 +59,30 @@
         <div class="relative min-w-0 flex-1">
             <div id="map" class="absolute inset-0 z-0" aria-label="{{ __('Tailor map') }}"></div>
 
-            <label class="floating absolute left-3 top-3 z-[1000] hidden cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium text-stone-700 lg:flex">
+            {{-- Chip kategori & filter cepat yang melayang di atas peta (ala Google Maps) --}}
+            <nav class="pointer-events-none absolute inset-x-0 top-0 z-[1000] px-3 pt-3" aria-label="{{ __('Categories') }}">
+                <div class="pointer-events-auto flex w-fit max-w-full gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <button type="button" class="map-chip is-active" data-category="" aria-pressed="true">
+                        <i class="ti ti-hanger" aria-hidden="true"></i>{{ __('All') }}
+                    </button>
+                    @foreach ($categories as $category)
+                        <button type="button" class="map-chip" data-category="{{ $category['value'] }}" aria-pressed="false">
+                            <i class="ti ti-{{ $category['icon'] }}" aria-hidden="true"></i>{{ $category['label'] }}
+                        </button>
+                    @endforeach
+
+                    <span class="mx-0.5 my-1.5 w-px shrink-0 bg-stone-300" aria-hidden="true"></span>
+
+                    <button type="button" class="map-chip" data-filter="open" aria-pressed="false">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{ __('Open now') }}
+                    </button>
+                    <button type="button" class="map-chip" data-filter="homeVisit" aria-pressed="false">
+                        <i class="ti ti-home-move" aria-hidden="true"></i>{{ __('Home visit') }}
+                    </button>
+                </div>
+            </nav>
+
+            <label class="floating absolute bottom-3 left-3 z-[1000] hidden cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium text-stone-700 lg:flex">
                 <input id="bounds-toggle" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-navy-700 focus:ring-navy-600">
                 {{ __('Search as I move the map') }}
             </label>

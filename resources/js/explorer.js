@@ -57,7 +57,6 @@ const el = {
 */
 
 const map = createBaseMap('map');
-map.attributionControl.setPosition(isDesktop() ? 'bottomright' : 'topright');
 
 const cluster = L.markerClusterGroup({
     showCoverageOnHover: false,
@@ -367,7 +366,6 @@ el.handle.addEventListener('pointerup', (event) => {
 });
 
 desktopQuery.addEventListener('change', () => {
-    map.attributionControl.setPosition(isDesktop() ? 'bottomright' : 'topright');
     setSheet(false);
     hidePreview();
     map.invalidateSize();
@@ -416,7 +414,7 @@ el.filterChips.forEach((chip) => {
     chip.addEventListener('click', () => {
         const key = chip.dataset.filter;
         state[key] = !state[key];
-        chip.classList.toggle('chip-active', state[key]);
+        chip.classList.toggle('is-active', state[key]);
         chip.setAttribute('aria-pressed', String(state[key]));
         applyFilters();
     });
@@ -437,9 +435,12 @@ el.reset.addEventListener('click', () => {
     el.query.value = '';
     el.area.value = '';
     el.boundsToggle.checked = false;
-    el.categoryTabs.forEach((tab) => tab.classList.toggle('is-active', tab.dataset.category === ''));
+    el.categoryTabs.forEach((tab) => {
+        tab.classList.toggle('is-active', tab.dataset.category === '');
+        tab.setAttribute('aria-pressed', String(tab.dataset.category === ''));
+    });
     el.filterChips.forEach((chip) => {
-        chip.classList.remove('chip-active');
+        chip.classList.remove('is-active');
         chip.setAttribute('aria-pressed', 'false');
     });
     applyFilters();
