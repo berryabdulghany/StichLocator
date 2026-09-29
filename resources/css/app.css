@@ -129,3 +129,101 @@
 .leaflet-popup-content-wrapper {
     @apply rounded-xl shadow-md;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Halaman peta (explorer)
+|--------------------------------------------------------------------------
+*/
+
+/* Marker pill: ikon jarum benang + rating. Nama muncul saat hover/terpilih. */
+.sl-pin {
+    @apply inline-flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full
+           border border-stone-300 bg-white py-1 pl-1.5 pr-2 text-xs font-bold text-stone-800 shadow-md transition;
+}
+.sl-pin i {
+    @apply text-sm text-navy-700;
+}
+.sl-pin .sl-pin-name {
+    @apply hidden max-w-[10rem] truncate font-semibold;
+}
+.sl-pin.is-closed {
+    @apply border-stone-200 bg-stone-50 text-stone-400;
+}
+.sl-pin.is-closed i {
+    @apply text-stone-400;
+}
+.sl-pin.is-hover,
+.sl-pin.is-active {
+    @apply z-10 scale-110 border-navy-700;
+}
+.sl-pin.is-hover .sl-pin-name,
+.sl-pin.is-active .sl-pin-name {
+    @apply inline;
+}
+.sl-pin.is-active {
+    @apply bg-navy-700 text-white;
+}
+.sl-pin.is-active i {
+    @apply text-white;
+}
+.leaflet-marker-icon:has(.sl-pin.is-hover),
+.leaflet-marker-icon:has(.sl-pin.is-active) {
+    z-index: 10000 !important;
+}
+
+/* Cluster "gulungan benang": lingkaran bergaris ganda berisi jumlah penjahit */
+.sl-spool {
+    @apply flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-navy-700 shadow-md;
+    border: 4px double theme('colors.navy.700');
+}
+
+/* Kartu penjahit di daftar */
+.tailor-card {
+    @apply flex w-full gap-3 rounded-xl p-3 text-left transition hover:bg-stone-50;
+}
+.tailor-card.is-active {
+    @apply bg-navy-50 ring-1 ring-navy-600/40;
+}
+
+/* Kategori aktif di bar kategori */
+.category-tab {
+    @apply flex min-w-[4.5rem] shrink-0 flex-col items-center gap-1 border-b-2 border-transparent px-2 pb-2 pt-1 text-xs
+           font-medium text-stone-500 transition hover:text-stone-800;
+}
+.category-tab i {
+    @apply text-xl;
+}
+.category-tab.is-active {
+    @apply border-navy-700 text-navy-700;
+}
+
+/* Bottom sheet daftar penjahit (layar kecil) */
+@media (max-width: 1023px) {
+    .results-sheet {
+        transform: translateY(calc(100% - 7.5rem));
+        transition: transform 0.3s ease;
+    }
+    .results-sheet.is-expanded {
+        transform: translateY(0);
+    }
+    .results-sheet.is-dragging {
+        transition: none;
+    }
+    .leaflet-control-zoom {
+        display: none;
+    }
+}
+
+/* Drawer detail penjahit */
+.detail-drawer {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.detail-drawer:not(.is-open) {
+    @apply pointer-events-none translate-y-full opacity-0 lg:translate-x-[110%] lg:translate-y-0;
+}
+
+/* Garis titik-titik penghubung di "nota jahit" */
+.nota-leader {
+    @apply mx-2 flex-1 translate-y-[-0.3em] border-b border-dotted border-stone-400;
+}

@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.site', ['title' => __('Edit profile')])
 
 @section('content')
-<div class="h-full overflow-y-auto">
+<main>
     <div class="mx-auto max-w-xl p-4 md:p-8">
         <div class="mb-4 flex items-center gap-3">
             <a href="{{ route('dashboard') }}" class="btn-icon" aria-label="{{ __('Back') }}">
@@ -79,5 +79,5 @@
             </form>
         </div>
     </div>
-</div>
+</main>
 @endsection

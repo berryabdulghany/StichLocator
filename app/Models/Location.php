@@ -274,4 +274,57 @@ class Location extends Model
 
         $this->unsetRelation('hours');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Data untuk halaman peta
+    |--------------------------------------------------------------------------
+    */
+
+    /** Wilayah dari alamat, misalnya "Jakarta Selatan" */
+    public function area(): ?string
+    {
+        return preg_match('/Jakarta\s+(Pusat|Selatan|Timur|Utara|Barat)/i', (string) $this->address, $m)
+            ? 'Jakarta ' . ucfirst(strtolower($m[1]))
+            : null;
+    }
+
+    /** Pesan pembuka WhatsApp yang sudah terisi */
+    public function whatsappGreeting(): string
+    {
+        return __('Hi :name, I found you on StichLocator. I would like to ask about your tailoring services.', [
+            'name' => $this->name,
+        ]);
+    }
+
+    /**
+     * Ringkasan penjahit untuk katalog & marker peta.
+     * Butuh relasi services dan hours, serta reviews_count (withCount).
+     */
+    public function toExplorerArray(): array
+    {
+        $priceFrom = $this->priceFrom();
+
+        return [
+            'id' => $this->id,
+            'slug' => $this->slug,
+            'name' => $this->name,
+            'address' => $this->address,
+            'area' => $this->area(),
+            'lat' => $this->lat,
+            'lng' => $this->lng,
+            'cover_url' => $this->cover_url,
+            'rating' => $this->rating !== null ? round((float) $this->rating, 1) : null,
+            'reviews_count' => (int) ($this->reviews_count ?? 0),
+            'is_open' => $this->isOpenNow(),
+            'status_text' => $this->statusText(),
+            'categories' => array_map(fn ($category) => $category->value, $this->categories()),
+            'services' => $this->services->pluck('name')->implode(' '),
+            'price_from' => $priceFrom,
+            'price_from_text' => $priceFrom !== null ? \App\Support\Format::rupiahShort($priceFrom) : null,
+            'home_visit' => (bool) $this->offers_home_visit,
+            'detail_url' => route('penjahit.show', $this->slug),
+            'whatsapp_url' => $this->whatsappUrl($this->whatsappGreeting()),
+        ];
+    }
 }
