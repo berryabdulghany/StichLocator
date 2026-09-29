@@ -916,4 +916,39 @@ el.routeCard.addEventListener('click', (event) => {
     }
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| Filter awal dari URL (misalnya dari landing page)
+| ?q=kebaya  ?kategori=permak  ?wilayah=Coblong  ?dekat=1
+|--------------------------------------------------------------------------
+*/
+
+const initialParams = new URLSearchParams(window.location.search);
+
+if (initialParams.get('q')) {
+    el.query.value = initialParams.get('q');
+    state.query = el.query.value.trim().toLowerCase();
+}
+
+const initialCategory = initialParams.get('kategori');
+if (initialCategory && categoryLabel[initialCategory]) {
+    state.category = initialCategory;
+    el.categoryTabs.forEach((tab) => {
+        const active = tab.dataset.category === initialCategory;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-pressed', String(active));
+    });
+}
+
+const initialArea = initialParams.get('wilayah');
+if (initialArea && [...el.area.options].some((option) => option.value === initialArea)) {
+    el.area.value = initialArea;
+    state.area = initialArea;
+}
+
 applyFilters();
+
+if (initialParams.get('dekat') === '1') {
+    locateUser();
+}

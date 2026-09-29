@@ -25,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Yang sudah login dan membuka halaman login/register diarahkan ke dashboard masing-masing
         $middleware->redirectUsersTo(fn (Request $request) => $request->is('admin', 'admin/*')
             ? route('admin.dashboard')
-            : route('dashboard'));
+            : route('home'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
