@@ -66,6 +66,27 @@ class ExplorePageTest extends TestCase
             ->assertSee('name="tags[]"', false);
     }
 
+    public function test_detail_has_save_and_route_actions(): void
+    {
+        $location = Location::where('slug', 'tailor-kebaya-bu-sri')->first();
+
+        $this->get('/penjahit/tailor-kebaya-bu-sri')
+            ->assertSee('data-save data-id="' . $location->id . '"', false)
+            ->assertSee('data-route data-id="' . $location->id . '"', false)
+            ->assertSee('https://www.google.com/maps/dir/?api=1&destination=' . $location->lat . ',' . $location->lng, false);
+    }
+
+    public function test_explore_page_tells_javascript_whether_route_preview_is_available(): void
+    {
+        config(['services.openrouteservice.key' => null]);
+        $this->get('/')->assertSee('routingEnabled: false', false);
+
+        config(['services.openrouteservice.key' => 'rahasia-123']);
+        $this->get('/')
+            ->assertSee('routingEnabled: true', false)
+            ->assertDontSee('rahasia-123');
+    }
+
     public function test_unknown_tailor_returns_404(): void
     {
         $this->get('/penjahit/tidak-ada')->assertNotFound();
