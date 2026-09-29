@@ -3,8 +3,12 @@
     $menu = [
         ['route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'icon' => 'layout-dashboard', 'label' => __('Dashboard')],
         ['route' => 'admin.tailors.index', 'active' => 'admin.tailors.*', 'icon' => 'needle-thread', 'label' => __('Tailors')],
-        ['route' => 'admin.reviews.index', 'active' => 'admin.reviews.*', 'icon' => 'message-circle', 'label' => __('Reviews')],
+        ['route' => 'admin.reviews.index', 'active' => 'admin.reviews.*', 'icon' => 'message-circle', 'label' => __('Reviews'),
+            // Jumlah laporan ulasan yang belum ditindaklanjuti
+            'badge' => \App\Models\ReviewReport::open()->whereHas('review')->distinct('review_id')->count('review_id')],
         ['route' => 'admin.users.index', 'active' => 'admin.users.*', 'icon' => 'users', 'label' => __('Users')],
+        ['route' => 'admin.trash.index', 'active' => 'admin.trash.*', 'icon' => 'trash', 'label' => __('Trash')],
+        ['route' => 'admin.activity.index', 'active' => 'admin.activity.*', 'icon' => 'history', 'label' => __('Activity log')],
         ['route' => 'admin.admins.index', 'active' => 'admin.admins.*', 'icon' => 'shield-lock', 'label' => __('Admins')],
     ];
     $admin = auth('admin')->user();
@@ -38,6 +42,10 @@
                        'text-navy-100/80 hover:bg-white/5 hover:text-white' => ! $active,
                    ])>
                     <i class="ti ti-{{ $item['icon'] }} text-lg" aria-hidden="true"></i>{{ $item['label'] }}
+                    @if (! empty($item['badge']))
+                        <span class="ml-auto rounded-full bg-terra-500 px-2 py-0.5 text-xs font-bold text-white"
+                              title="{{ __(':count reported reviews', ['count' => $item['badge']]) }}">{{ $item['badge'] }}</span>
+                    @endif
                 </a>
             @endforeach
         </nav>
@@ -51,10 +59,10 @@
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold text-white">
                     {{ mb_strtoupper(mb_substr($admin->name, 0, 1)) }}
                 </span>
-                <div class="min-w-0 flex-1">
+                <a href="{{ route('admin.account.edit') }}" class="min-w-0 flex-1 rounded hover:underline" title="{{ __('My account') }}">
                     <p class="truncate text-sm font-semibold text-white">{{ $admin->name }}</p>
                     <p class="truncate text-xs text-navy-100/70">{{ $admin->email }}</p>
-                </div>
+                </a>
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="rounded-lg p-1.5 text-navy-100/80 hover:bg-white/10 hover:text-white" title="{{ __('Log out') }}" aria-label="{{ __('Log out') }}">

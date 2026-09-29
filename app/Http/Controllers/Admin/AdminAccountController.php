@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Support\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
@@ -26,7 +27,8 @@ class AdminAccountController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
-        Admin::create($validated); // password di-hash oleh cast 'hashed'
+        $admin = Admin::create($validated); // password di-hash oleh cast 'hashed'
+        Activity::log('created', $admin, 'Added admin :name (:email)', ['name' => $admin->name, 'email' => $admin->email]);
 
         return back()->with('status', __('Admin :name added.', ['name' => $validated['name']]));
     }
@@ -39,6 +41,7 @@ class AdminAccountController extends Controller
         }
 
         $admin->delete();
+        Activity::log('deleted', $admin, 'Removed admin :name (:email)', ['name' => $admin->name, 'email' => $admin->email]);
 
         return back()->with('status', __('Admin :name deleted.', ['name' => $admin->name]));
     }

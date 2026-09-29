@@ -17,6 +17,23 @@
         ];
     @endphp
 
+    @if ($todo['reports'] || $todo['drafts'])
+        <div class="mb-6 flex flex-wrap gap-3">
+            @if ($todo['reports'])
+                <a href="{{ route('admin.reviews.index', ['reported' => 1]) }}" class="flex items-center gap-2 rounded-lg border border-terra-200 bg-terra-50 px-4 py-2.5 text-sm font-medium text-terra-800 hover:bg-terra-100">
+                    <i class="ti ti-flag" aria-hidden="true"></i>{{ trans_choice(':count reported review needs checking|:count reported reviews need checking', $todo['reports']) }}
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </a>
+            @endif
+            @if ($todo['drafts'])
+                <a href="{{ route('admin.tailors.index', ['status' => 'draft']) }}" class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-900 hover:bg-amber-100">
+                    <i class="ti ti-eye-off" aria-hidden="true"></i>{{ trans_choice(':count tailor is still a draft|:count tailors are still drafts', $todo['drafts']) }}
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </a>
+            @endif
+        </div>
+    @endif
+
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($cards as $card)
             <a href="{{ route($card['route']) }}" class="card group flex items-start gap-4 p-5 transition hover:border-navy-300 hover:shadow-md">

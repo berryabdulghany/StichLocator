@@ -13,7 +13,8 @@ class ExploreController extends Controller
      */
     public function index()
     {
-        $locations = Location::with(['services', 'hours'])
+        $locations = Location::published()
+            ->with(['services', 'hours'])
             ->withCount('reviews')
             ->get();
 

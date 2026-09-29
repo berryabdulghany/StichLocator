@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use App\Models\User;
+use App\Support\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -91,7 +92,7 @@ class AuthController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:6144', // dikompres ke 400px
         ]);
 
         $user->name = $validated['name'];
@@ -101,7 +102,7 @@ class AuthController extends Controller
             if ($user->profile_picture) {
                 Storage::disk('public')->delete($user->profile_picture);
             }
-            $user->profile_picture = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->profile_picture = ImageOptimizer::store($request->file('profile_picture'), 'profile_pictures', 400);
         }
 
         $user->save();
@@ -141,7 +142,7 @@ class AuthController extends Controller
         return Review::with(['user', 'location'])
             ->where('rating', 5)
             ->whereNotNull('user_id')
-            ->whereHas('location')
+            ->whereHas('location', fn ($query) => $query->published())
             ->inRandomOrder()
             ->first();
     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Location;
 use App\Models\LocationService;
 use App\Models\Review;
+use App\Models\ReviewReport;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 
@@ -21,7 +22,7 @@ class DashboardController extends Controller
 
         $stats = [
             'tailors' => $tailors->count(),
-            'open_now' => $tailors->filter->isOpenNow()->count(),
+            'open_now' => $tailors->where('is_published', true)->filter->isOpenNow()->count(),
             'reviews' => Review::count(),
             'reviews_recent' => Review::where('created_at', '>=', $since)->count(),
             'users' => User::count(),
@@ -58,8 +59,14 @@ class DashboardController extends Controller
             ->take(4)
             ->get();
 
+        // Hal yang menunggu tindakan admin
+        $todo = [
+            'reports' => ReviewReport::open()->whereHas('review')->distinct('review_id')->count('review_id'),
+            'drafts' => $tailors->where('is_published', false)->count(),
+        ];
+
         return view('admin.dashboard', compact(
-            'stats', 'timeline', 'distribution', 'categories', 'recentReviews', 'needsAttention',
+            'stats', 'timeline', 'distribution', 'categories', 'recentReviews', 'needsAttention', 'todo',
         ));
     }
 }

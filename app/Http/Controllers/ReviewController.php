@@ -19,7 +19,9 @@ class ReviewController extends Controller
      */
     public function getReviews($locationId)
     {
-        $reviews = Review::where('location_id', $locationId)
+        $location = Location::published()->findOrFail($locationId);
+
+        $reviews = $location->reviews()
             ->with('user')
             ->latest()
             ->get()
@@ -41,7 +43,8 @@ class ReviewController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'location_id' => 'required|exists:locations,id',
+            // Hanya penjahit yang terbit (dan tidak di tempat sampah) yang bisa diulas
+            'location_id' => ['required', Rule::exists('locations', 'id')->where('is_published', true)->whereNull('deleted_at')],
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|max:500',
             ...self::tagRules(),
@@ -73,7 +76,7 @@ class ReviewController extends Controller
         abort_unless($review->user_id === Auth::id(), 403);
 
         $location = $review->location;
-        $review->delete();
+        $review->forceDelete(); // pilihan pengguna sendiri: langsung permanen, tidak masuk sampah admin
         $location?->refreshRatingStats();
 
         return redirect()->to(route('user.profile') . '#ulasan')->with('status', __('Review deleted.'));

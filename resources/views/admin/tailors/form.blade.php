@@ -79,7 +79,22 @@
                 <h2 class="mb-1 flex items-center gap-2 font-semibold text-stone-900">
                     <i class="ti ti-map-pin text-navy-700" aria-hidden="true"></i>{{ __('Location on the map') }}
                 </h2>
-                <p class="mb-4 text-sm text-stone-500">{{ __('Click the map or drag the pin to the tailor\'s location.') }}</p>
+                <p class="mb-4 text-sm text-stone-500">{{ __('Search the address, click the map, or drag the pin to the tailor\'s location.') }}</p>
+                <div class="relative mb-3" data-geocode>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <i class="ti ti-world-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" aria-hidden="true"></i>
+                            <input type="search" class="input pl-9" data-geocode-input autocomplete="off"
+                                   placeholder="{{ __('Search address or place, e.g. Jl. Braga Bandung') }}" aria-label="{{ __('Search address') }}">
+                        </div>
+                        <button type="button" class="btn-outline" data-geocode-search>{{ __('Search') }}</button>
+                        <button type="button" class="btn-ghost hidden sm:inline-flex" data-geocode-from-address title="{{ __('Search using the address field above') }}">
+                            <i class="ti ti-arrow-up" aria-hidden="true"></i>{{ __('Use address') }}
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-stone-500" data-geocode-status role="status" aria-live="polite" hidden></p>
+                    <ul class="absolute inset-x-0 top-full z-[1000] mt-1 max-h-64 overflow-auto rounded-lg border border-stone-200 bg-white text-sm shadow-lg" data-geocode-results hidden></ul>
+                </div>
                 <div id="tailor-map" class="h-72 overflow-hidden rounded-xl border border-stone-200" aria-label="{{ __('Location picker map') }}"></div>
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
@@ -154,23 +169,42 @@
                 </h2>
 
                 @if ($editing && $tailor->photos->isNotEmpty())
-                    <div class="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <p class="mb-3 text-sm text-stone-500">{{ __('Use the arrows to reorder. The first photo appears first in the gallery.') }}</p>
+                    <ol class="mb-5 space-y-2" data-gallery>
                         @foreach ($tailor->photos as $photo)
-                            <label class="group relative block cursor-pointer overflow-hidden rounded-lg border border-stone-200" data-photo>
-                                <img src="{{ $photo->url }}" alt="" class="aspect-[4/3] w-full object-cover">
-                                <span class="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-white/90 px-2 py-1 text-xs text-stone-700">
-                                    <input type="checkbox" name="photos_delete[]" value="{{ $photo->id }}" class="h-3.5 w-3.5 rounded border-stone-300 text-red-600 focus:ring-red-500">
-                                    {{ __('Delete') }}
-                                </span>
-                            </label>
+                            @php($isCover = $photo->path === $tailor->image_url)
+                            <li class="flex items-center gap-3 rounded-lg border border-stone-200 p-2" data-photo>
+                                <input type="hidden" name="photo_order[]" value="{{ $photo->id }}">
+                                <img src="{{ $photo->url }}" alt="" class="h-16 w-20 shrink-0 rounded-md object-cover">
+                                <div class="min-w-0 flex-1 space-y-1.5">
+                                    <input type="text" name="photo_credit[{{ $photo->id }}]" value="{{ old("photo_credit.$photo->id", $photo->credit) }}"
+                                           class="input py-1 text-sm" maxlength="255" placeholder="{{ __('Photo credit (optional)') }}" aria-label="{{ __('Photo credit') }}">
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-600">
+                                        <label class="flex cursor-pointer items-center gap-1.5">
+                                            <input type="radio" name="cover_photo_id" value="{{ $photo->id }}" class="h-3.5 w-3.5 border-stone-300 text-navy-700 focus:ring-navy-600"
+                                                   @checked((string) old('cover_photo_id') === (string) $photo->id || (! old('cover_photo_id') && $isCover))>
+                                            <i class="ti ti-photo-star" aria-hidden="true"></i>{{ $isCover ? __('Current cover') : __('Set as cover') }}
+                                        </label>
+                                        <label class="flex cursor-pointer items-center gap-1.5 text-red-700">
+                                            <input type="checkbox" name="photos_delete[]" value="{{ $photo->id }}" class="h-3.5 w-3.5 rounded border-stone-300 text-red-600 focus:ring-red-500"
+                                                   @checked(in_array($photo->id, old('photos_delete', [])))>
+                                            {{ __('Delete') }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex shrink-0 flex-col gap-1">
+                                    <button type="button" class="btn-ghost px-1.5 py-1" data-photo-up title="{{ __('Move up') }}" aria-label="{{ __('Move up') }}"><i class="ti ti-arrow-up" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn-ghost px-1.5 py-1" data-photo-down title="{{ __('Move down') }}" aria-label="{{ __('Move down') }}"><i class="ti ti-arrow-down" aria-hidden="true"></i></button>
+                                </div>
+                            </li>
                         @endforeach
-                    </div>
+                    </ol>
                 @endif
 
                 <label for="photos" class="label">{{ __('Add photos') }}</label>
                 <input type="file" name="photos[]" id="photos" multiple accept="image/jpeg,image/png,image/webp"
                        class="block w-full text-sm text-stone-500 file:mr-3 file:rounded-full file:border-0 file:bg-navy-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-navy-700 hover:file:bg-navy-100">
-                <p class="mt-1 text-xs text-stone-500">{{ __('Up to 10 photos at once, max 3 MB each (JPG, PNG, WebP).') }}</p>
+                <p class="mt-1 text-xs text-stone-500">{{ __('Up to 5 photos at once, max 6 MB each (JPG, PNG, WebP). Photos are compressed automatically.') }}</p>
             </section>
         </div>
 
@@ -191,12 +225,20 @@
             </section>
 
             <section class="card space-y-3 p-5">
+                @php($published = (bool) old('is_published', $tailor->is_published))
+                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-stone-200 p-3">
+                    <input type="checkbox" name="is_published" value="1" class="mt-0.5 h-4 w-4 rounded border-stone-300 text-navy-700 focus:ring-navy-600" @checked($published)>
+                    <span>
+                        <span class="block text-sm font-semibold text-stone-900">{{ __('Published') }}</span>
+                        <span class="block text-xs text-stone-500">{{ __('Uncheck to save as a draft. Drafts are hidden from the map and search.') }}</span>
+                    </span>
+                </label>
                 <button type="submit" class="btn-primary w-full py-2.5">
                     <i class="ti ti-device-floppy" aria-hidden="true"></i>{{ $editing ? __('Save changes') : __('Add tailor') }}
                 </button>
                 @if ($editing)
                     <a href="{{ route('penjahit.show', $tailor->slug) }}" target="_blank" rel="noopener" class="btn-outline w-full">
-                        <i class="ti ti-external-link" aria-hidden="true"></i>{{ __('View on site') }}
+                        <i class="ti ti-external-link" aria-hidden="true"></i>{{ $tailor->is_published ? __('View on site') : __('Preview') }}
                     </a>
                     <dl class="space-y-1 border-t border-dashed border-stitch pt-3 text-xs text-stone-500">
                         <div class="flex justify-between"><dt>{{ __('Link') }}</dt><dd class="truncate pl-2 font-mono">/penjahit/{{ $tailor->slug }}</dd></div>
@@ -204,7 +246,7 @@
                         <div class="flex justify-between"><dt>{{ __('Last updated') }}</dt><dd>{{ $tailor->updated_at?->diffForHumans() }}</dd></div>
                     </dl>
                     <button type="submit" form="delete-tailor" class="btn-ghost w-full text-red-600 hover:bg-red-50">
-                        <i class="ti ti-trash" aria-hidden="true"></i>{{ __('Delete tailor') }}
+                        <i class="ti ti-trash" aria-hidden="true"></i>{{ __('Move to trash') }}
                     </button>
                 @endif
             </section>
@@ -214,7 +256,7 @@
     @if ($editing)
         {{-- Form hapus di luar form utama (form tidak boleh bersarang) --}}
         <form id="delete-tailor" action="{{ route('admin.tailors.destroy', $tailor) }}" method="POST"
-              data-confirm="{{ __('Delete :name along with all its services, photos, and reviews?', ['name' => $tailor->name]) }}">
+              data-confirm="{{ __('Move :name to trash? It can be restored within :days days.', ['name' => $tailor->name, 'days' => \App\Models\Location::TRASH_DAYS]) }}">
             @csrf
             @method('DELETE')
         </form>

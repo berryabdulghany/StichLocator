@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Support\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,7 @@ class AuthController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            Activity::log('login', Auth::guard('admin')->user(), 'Logged in');
 
             return redirect()->intended(route('admin.dashboard'));
         }
@@ -32,6 +34,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        Activity::log('logout', Auth::guard('admin')->user(), 'Logged out');
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

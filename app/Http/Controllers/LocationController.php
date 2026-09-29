@@ -11,6 +11,6 @@ class LocationController extends Controller
 {
     public function getLocations()
     {
-        return response()->json(Location::all());
+        return response()->json(Location::published()->get());
     }
 }

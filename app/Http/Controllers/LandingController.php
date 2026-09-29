@@ -16,17 +16,19 @@ class LandingController extends Controller
      */
     public function index()
     {
-        $locations = Location::with(['services', 'hours'])->withCount('reviews')->get();
+        $locations = Location::published()->with(['services', 'hours'])->withCount('reviews')->get();
+        $publishedReviews = Review::whereHas('location', fn ($query) => $query->published());
 
         $stats = [
             'tailors' => $locations->count(),
-            'reviews' => Review::count(),
-            'rating' => round((float) Review::avg('rating'), 1),
+            'reviews' => (clone $publishedReviews)->count(),
+            'rating' => round((float) (clone $publishedReviews)->avg('rating'), 1),
             'categories' => count(ServiceCategory::cases()),
         ];
 
         // Harga termurah & jumlah penjahit per kategori
-        $minPrices = LocationService::selectRaw('category, MIN(price_from) as min_price')
+        $minPrices = LocationService::whereIn('location_id', $locations->modelKeys())
+            ->selectRaw('category, MIN(price_from) as min_price')
             ->groupBy('category')
             ->pluck('min_price', 'category');
 

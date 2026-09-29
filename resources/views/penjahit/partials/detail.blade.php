@@ -18,6 +18,15 @@
 <article class="detail" data-detail data-location-id="{{ $location->id }}" data-share-url="{{ route('penjahit.show', $location->slug) }}"
          data-share-title="{{ $location->name }}">
 
+    @unless ($location->is_published)
+        {{-- Hanya admin yang bisa melihat draf (lihat PenjahitController@show) --}}
+        <div class="flex items-center gap-2 bg-amber-50 px-4 py-2.5 text-sm text-amber-900" role="note">
+            <i class="ti ti-eye-off" aria-hidden="true"></i>
+            <span>{{ __('Draft preview: this tailor is not visible to visitors yet.') }}</span>
+            <a href="{{ route('admin.tailors.edit', $location) }}" class="ml-auto font-semibold underline">{{ __('Edit') }}</a>
+        </div>
+    @endunless
+
     {{-- Kolase foto --}}
     @if ($photos->isNotEmpty())
         <div class="grid h-52 grid-cols-3 grid-rows-2 gap-1">
@@ -175,6 +184,29 @@
                             <span class="text-stone-400">· {{ $review->created_at->diffForHumans() }}</span>
                         </div>
                         <p class="mt-1 text-sm text-stone-700">{{ $review->review }}</p>
+
+                        @auth
+                            @if ($review->user_id !== auth()->id())
+                                <details class="mt-1" data-report>
+                                    <summary class="inline-flex cursor-pointer list-none items-center gap-1 text-xs text-stone-400 hover:text-red-600 [&::-webkit-details-marker]:hidden">
+                                        <i class="ti ti-flag" aria-hidden="true"></i>{{ __('Report') }}
+                                    </summary>
+                                    <form data-report-form action="{{ route('reviews.report', $review) }}" class="mt-2 space-y-2 rounded-lg border border-stone-200 bg-white p-3">
+                                        <p class="text-xs font-semibold text-stone-700">{{ __('Why are you reporting this review?') }}</p>
+                                        @foreach (\App\Enums\ReportReason::cases() as $reason)
+                                            <label class="flex items-center gap-2 text-xs text-stone-600">
+                                                <input type="radio" name="reason" value="{{ $reason->value }}" required
+                                                       class="h-3.5 w-3.5 border-stone-300 text-red-600 focus:ring-red-500">
+                                                {{ $reason->label() }}
+                                            </label>
+                                        @endforeach
+                                        <textarea name="note" rows="2" maxlength="300" class="input py-1.5 text-xs" placeholder="{{ __('Additional note (optional)') }}"></textarea>
+                                        <p data-report-error class="hidden text-xs text-red-600" role="alert"></p>
+                                        <button type="submit" class="btn-danger px-3 py-1.5 text-xs">{{ __('Send report') }}</button>
+                                    </form>
+                                </details>
+                            @endif
+                        @endauth
                     </li>
                 @endforeach
             </ul>

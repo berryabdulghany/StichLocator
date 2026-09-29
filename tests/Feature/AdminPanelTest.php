@@ -44,6 +44,7 @@ class AdminPanelTest extends TestCase
             'description' => 'Deskripsi singkat',
             'telepon' => '0812 1111 2222',
             'offers_home_visit' => '1',
+            'is_published' => '1',
             'lat' => '-6.8856',
             'lng' => '107.6135',
             'cover' => UploadedFile::fake()->image('sampul.jpg', 800, 600),
@@ -71,12 +72,18 @@ class AdminPanelTest extends TestCase
             route('admin.dashboard'),
             route('admin.tailors.index'),
             route('admin.tailors.index', ['q' => 'kebaya']),
+            route('admin.tailors.index', ['status' => 'draft']),
             route('admin.tailors.create'),
             route('admin.tailors.edit', $tailor),
             route('admin.reviews.index', ['rating' => 5, 'tailor' => $tailor->id, 'q' => 'rapi']),
+            route('admin.reviews.index', ['reported' => 1]),
             route('admin.reviews.edit', $review),
             route('admin.users.index', ['q' => 'demo']),
             route('admin.admins.index'),
+            route('admin.account.edit'),
+            route('admin.trash.index'),
+            route('admin.activity.index'),
+            route('admin.activity.index', ['action' => 'login', 'admin' => $this->admin->id]),
         ] as $url) {
             $this->get($url)->assertOk();
         }
@@ -162,15 +169,28 @@ class AdminPanelTest extends TestCase
         $this->assertNull($tailor->weeklyHours()[6]);
     }
 
-    public function test_deleting_tailor_removes_uploaded_files_and_reviews(): void
+    public function test_deleting_tailor_moves_it_to_trash_and_force_delete_removes_files(): void
     {
         $this->post(route('admin.tailors.store'), $this->tailorPayload());
         $tailor = Location::with('photos')->firstOrFail();
         Review::create(['location_id' => $tailor->id, 'user_id' => User::factory()->create()->id, 'rating' => 5, 'review' => 'Bagus']);
         $files = $tailor->photos->pluck('path')->push($tailor->image_url)->map(fn ($p) => $this->storedPath($p));
 
+        // Hapus biasa = pindah ke sampah; file & ulasan masih ada
         $this->delete(route('admin.tailors.destroy', $tailor))->assertRedirect(route('admin.tailors.index'));
+        $this->assertSoftDeleted($tailor);
+        $this->assertDatabaseCount('reviews', 1);
+        $files->each(fn ($path) => Storage::disk('public')->assertExists($path));
+        $this->get(route('penjahit.show', $tailor->slug))->assertNotFound();
 
+        // Pulihkan
+        $this->post(route('admin.trash.tailors.restore', $tailor))->assertRedirect();
+        $this->assertNotSoftDeleted($tailor);
+
+        // Hapus permanen dari sampah: file & ulasan ikut hilang
+        $tailor->delete();
+        $this->get(route('admin.trash.index'))->assertOk()->assertSee($tailor->name);
+        $this->delete(route('admin.trash.tailors.destroy', $tailor))->assertRedirect();
         $this->assertModelMissing($tailor);
         $this->assertDatabaseCount('reviews', 0);
         $files->each(fn ($path) => Storage::disk('public')->assertMissing($path));
@@ -206,7 +226,7 @@ class AdminPanelTest extends TestCase
 
         $countBefore = $tailor->fresh()->review_count;
         $this->delete(route('admin.reviews.destroy', $review));
-        $this->assertModelMissing($review);
+        $this->assertSoftDeleted($review);
         $this->assertSame($countBefore - 1, $tailor->fresh()->review_count);
     }
 

@@ -7,22 +7,29 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Support\Uploads;
 use Illuminate\Support\Str;
 
 class Location extends Model
 {
-    use HasFactory;
+    use HasFactory, Prunable, SoftDeletes;
+
+    /** Lama data di tempat sampah sebelum dihapus permanen (php artisan model:prune) */
+    public const TRASH_DAYS = 30;
 
     /** Zona waktu jam operasional penjahit */
     public const TIMEZONE = 'Asia/Jakarta';
 
     protected $fillable = [
-        'name', 'slug', 'address', 'description', 'telepon', 'offers_home_visit', 'rating', 'review_count',
+        'name', 'slug', 'address', 'description', 'telepon', 'offers_home_visit', 'is_published', 'rating', 'review_count',
         'status', 'image_url', 'lat', 'lng', 'opening_hours',
     ];
 
     protected $casts = [
         'offers_home_visit' => 'boolean',
+        'is_published' => 'boolean',
         'review_count' => 'integer',
         'lat' => 'float',
         'lng' => 'float',
@@ -37,6 +44,24 @@ class Location extends Model
         static::creating(function (Location $location) {
             $location->slug ??= static::uniqueSlug($location->name);
         });
+
+        // File unggahan (sampul & galeri) baru dihapus saat data dihapus permanen,
+        // supaya penjahit di tempat sampah masih bisa dipulihkan lengkap dengan fotonya.
+        static::forceDeleting(function (Location $location) {
+            $location->photos()->pluck('path')->push($location->image_url)->unique()->each(fn ($path) => Uploads::delete($path));
+        });
+    }
+
+    /** Hanya penjahit berstatus terbit yang tampil di halaman publik */
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    /** Penjahit yang sudah lebih dari 30 hari di tempat sampah */
+    public function prunable()
+    {
+        return static::onlyTrashed()->where('deleted_at', '<=', now()->subDays(self::TRASH_DAYS));
     }
 
     public static function uniqueSlug(string $name): string
@@ -45,7 +70,7 @@ class Location extends Model
         $slug = $base;
         $i = 2;
 
-        while (static::where('slug', $slug)->exists()) {
+        while (static::withTrashed()->where('slug', $slug)->exists()) {
             $slug = $base . '-' . $i++;
         }
 

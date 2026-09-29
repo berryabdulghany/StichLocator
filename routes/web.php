@@ -9,6 +9,7 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\PenjahitController;
+use App\Http\Controllers\ReviewReportController;
 use App\Http\Controllers\RouteController;
 
 /*
@@ -68,6 +69,11 @@ Route::middleware('auth')->group(function () {
 
     // Pengguna menghapus ulasannya sendiri (dari halaman profil)
     Route::delete('/ulasan/{review}', [ReviewController::class, 'destroyOwn'])->name('reviews.destroy-own');
+
+    // Laporkan ulasan yang tidak pantas
+    Route::post('/ulasan/{review}/laporkan', [ReviewReportController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('reviews.report');
 });
 
 /*
@@ -98,7 +104,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
+        // Akun saya
+        Route::get('/akun', [Admin\AccountController::class, 'edit'])->name('account.edit');
+        Route::put('/akun', [Admin\AccountController::class, 'update'])->name('account.update');
+        Route::put('/akun/password', [Admin\AccountController::class, 'updatePassword'])
+            ->middleware('throttle:6,1')
+            ->name('account.password');
+
         // Penjahit: /admin/penjahit, /admin/penjahit/create, /admin/penjahit/{id}/edit, ...
+        Route::get('/penjahit/ekspor', [Admin\TailorController::class, 'export'])->name('tailors.export');
         Route::resource('penjahit', Admin\TailorController::class)
             ->except('show')
             ->parameters(['penjahit' => 'tailor'])
@@ -106,6 +120,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Ulasan (moderasi)
         Route::get('/ulasan', [Admin\ReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/ulasan/ekspor', [Admin\ReviewController::class, 'export'])->name('reviews.export');
+        Route::post('/ulasan/{review}/abaikan-laporan', [Admin\ReviewController::class, 'dismissReports'])->name('reviews.dismiss-reports');
         Route::get('/ulasan/{review}/edit', [Admin\ReviewController::class, 'edit'])->name('reviews.edit');
         Route::put('/ulasan/{review}', [Admin\ReviewController::class, 'update'])->name('reviews.update');
         Route::delete('/ulasan/{review}', [Admin\ReviewController::class, 'destroy'])->name('reviews.destroy');
@@ -113,6 +129,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Pengguna
         Route::get('/pengguna', [Admin\UserController::class, 'index'])->name('users.index');
         Route::delete('/pengguna/{user}', [Admin\UserController::class, 'destroy'])->name('users.destroy');
+
+        // Tempat sampah (data yang dihapus bisa dipulihkan selama 30 hari)
+        Route::get('/sampah', [Admin\TrashController::class, 'index'])->name('trash.index');
+        Route::post('/sampah/penjahit/{tailor}/pulihkan', [Admin\TrashController::class, 'restoreTailor'])
+            ->withTrashed()->name('trash.tailors.restore');
+        Route::delete('/sampah/penjahit/{tailor}', [Admin\TrashController::class, 'forceDeleteTailor'])
+            ->withTrashed()->name('trash.tailors.destroy');
+        Route::post('/sampah/ulasan/{review}/pulihkan', [Admin\TrashController::class, 'restoreReview'])
+            ->withTrashed()->name('trash.reviews.restore');
+        Route::delete('/sampah/ulasan/{review}', [Admin\TrashController::class, 'forceDeleteReview'])
+            ->withTrashed()->name('trash.reviews.destroy');
+
+        // Log aktivitas
+        Route::get('/log', [Admin\ActivityLogController::class, 'index'])->name('activity.index');
 
         // Akun admin
         Route::get('/admin', [Admin\AdminAccountController::class, 'index'])->name('admins.index');

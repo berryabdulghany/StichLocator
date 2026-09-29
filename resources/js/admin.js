@@ -40,6 +40,7 @@ if (tailorForm) {
     initHours();
     initServices();
     initCoverPreview();
+    initGallery();
     initLocationPicker();
 }
 
@@ -100,6 +101,42 @@ function initCoverPreview() {
     });
 }
 
+/** Galeri: tombol naik/turun memindahkan foto (input hidden photo_order[] ikut pindah) */
+function initGallery() {
+    const gallery = tailorForm.querySelector('[data-gallery]');
+    if (!gallery) return;
+
+    const syncButtons = () => {
+        const items = [...gallery.children];
+        items.forEach((item, index) => {
+            item.querySelector('[data-photo-up]').disabled = index === 0;
+            item.querySelector('[data-photo-down]').disabled = index === items.length - 1;
+        });
+    };
+
+    gallery.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-photo-up], [data-photo-down]');
+        if (!button) return;
+        const item = button.closest('[data-photo]');
+        if (button.hasAttribute('data-photo-up')) {
+            item.previousElementSibling?.before(item);
+        } else {
+            item.nextElementSibling?.after(item);
+        }
+        syncButtons();
+        button.disabled ? item.querySelector('button:not(:disabled)')?.focus() : button.focus();
+    });
+
+    // Foto yang dicentang hapus dibuat redup agar jelas
+    gallery.addEventListener('change', (event) => {
+        if (event.target.name === 'photos_delete[]') {
+            event.target.closest('[data-photo]').classList.toggle('opacity-50', event.target.checked);
+        }
+    });
+
+    syncButtons();
+}
+
 /** Pemilih lokasi: klik peta atau geser pin; input lat/lng ikut berubah (dan sebaliknya) */
 async function initLocationPicker() {
     const element = document.getElementById('tailor-map');
@@ -147,4 +184,100 @@ async function initLocationPicker() {
             }
         });
     });
+
+    initGeocoder((lat, lng) => {
+        marker.setLatLng([lat, lng]);
+        map.setView([lat, lng], 17);
+        writeInputs({ lat, lng });
+    });
+}
+
+/**
+ * Cari alamat lewat Nominatim (OpenStreetMap). Sesuai kebijakan pemakaiannya,
+ * pencarian hanya dijalankan saat tombol/Enter ditekan (bukan setiap ketikan).
+ */
+function initGeocoder(onPick) {
+    const box = tailorForm.querySelector('[data-geocode]');
+    if (!box) return;
+
+    const input = box.querySelector('[data-geocode-input]');
+    const status = box.querySelector('[data-geocode-status]');
+    const results = box.querySelector('[data-geocode-results]');
+    let controller = null;
+
+    const setStatus = (text) => {
+        status.textContent = text;
+        status.hidden = !text;
+    };
+    const closeResults = () => {
+        results.hidden = true;
+        results.innerHTML = '';
+    };
+
+    const search = async (query) => {
+        query = query.trim();
+        if (query.length < 3) {
+            setStatus(t('Type at least 3 characters.'));
+            return;
+        }
+
+        controller?.abort();
+        controller = new AbortController();
+        closeResults();
+        setStatus(t('Searching...'));
+
+        try {
+            const url = new URL('https://nominatim.openstreetmap.org/search');
+            url.search = new URLSearchParams({ q: query, format: 'jsonv2', countrycodes: 'id', limit: '5', 'accept-language': document.documentElement.lang || 'id' });
+            const response = await fetch(url, { signal: controller.signal, headers: { Accept: 'application/json' } });
+            if (!response.ok) throw new Error(response.statusText);
+            const places = await response.json();
+
+            if (!places.length) {
+                setStatus(t('Address not found. Try a shorter query or pick on the map.'));
+                return;
+            }
+
+            setStatus('');
+            results.innerHTML = places.map((place, index) => `
+                <li>
+                    <button type="button" class="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-navy-50 focus:bg-navy-50 focus:outline-none" data-index="${index}">
+                        <i class="ti ti-map-pin mt-0.5 text-navy-700" aria-hidden="true"></i>
+                        <span class="text-stone-700">${escapeHtml(place.display_name)}</span>
+                    </button>
+                </li>`).join('');
+            results.hidden = false;
+            results.onclick = (event) => {
+                const button = event.target.closest('button[data-index]');
+                if (!button) return;
+                const place = places[Number(button.dataset.index)];
+                onPick(Number(place.lat), Number(place.lon));
+                closeResults();
+                setStatus(t('Pin moved. Drag it to fine-tune the position.'));
+            };
+        } catch (error) {
+            if (error.name !== 'AbortError') setStatus(t('Address search failed. Pick the location on the map instead.'));
+        }
+    };
+
+    box.querySelector('[data-geocode-search]').addEventListener('click', () => search(input.value));
+    box.querySelector('[data-geocode-from-address]').addEventListener('click', () => {
+        input.value = document.getElementById('address').value;
+        search(input.value);
+    });
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // jangan kirim form penjahit
+            search(input.value);
+        } else if (event.key === 'Escape') {
+            closeResults();
+        }
+    });
+    document.addEventListener('click', (event) => {
+        if (!box.contains(event.target)) closeResults();
+    });
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 }

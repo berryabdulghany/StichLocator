@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -36,8 +37,15 @@ class UserController extends Controller
             Storage::disk('public')->delete($user->profile_picture);
         }
 
-        $user->delete(); // ulasan ikut terhapus (cascade)
+        $reviewCount = $user->reviews()->withTrashed()->count();
+        $user->delete(); // ulasan ikut terhapus permanen (cascade di database)
         $locations->each->refreshRatingStats();
+
+        Activity::log('deleted', $user, 'Deleted user :name (:email) and :count reviews', [
+            'name' => $user->name,
+            'email' => $user->email,
+            'count' => $reviewCount,
+        ]);
 
         return back()->with('status', __('User :name deleted.', ['name' => $user->name]));
     }
