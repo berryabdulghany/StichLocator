@@ -26,7 +26,7 @@ class ExplorePageTest extends TestCase
         $this->assertCount(12, $tailors);
 
         $kebaya = $tailors->firstWhere('slug', 'tailor-kebaya-bu-sri');
-        $this->assertSame('Jakarta Pusat', $kebaya['area']);
+        $this->assertSame('Lengkong', $kebaya['area']);
         $this->assertContains('kebaya', $kebaya['categories']);
         $this->assertSame('Rp30rb', $kebaya['price_from_text']);
         $this->assertSame(route('penjahit.show', 'tailor-kebaya-bu-sri'), $kebaya['detail_url']);

@@ -142,7 +142,9 @@ class DatabaseSeeder extends Seeder
 
     /*
     |--------------------------------------------------------------------------
-    | Data penjahit demo (Jakarta)
+    | Data penjahit demo (Kota Bandung)
+    |--------------------------------------------------------------------------
+    | Alamat berformat "Jalan, Kecamatan, Kota Bandung"; kecamatan dipakai untuk filter Wilayah.
     |--------------------------------------------------------------------------
     | services: [kategori, nama layanan, harga mulai (Rp), min hari, maks hari]
     | reviews : [rating, teks, [tag...]]
@@ -165,9 +167,9 @@ class DatabaseSeeder extends Seeder
         return [
             [
                 'name' => 'Penjahit Pak Budi',
-                'address' => 'Jl. Sabang No. 12, Menteng, Jakarta Pusat',
-                'description' => 'Penjahit langganan pegawai kantoran sejak 1998. Spesialis kemeja, celana bahan, dan seragam kantor.',
-                'lat' => -6.18520, 'lng' => 106.82640,
+                'address' => 'Jl. Braga No. 12, Sumur Bandung, Kota Bandung',
+                'description' => 'Penjahit langganan pegawai kantoran di kawasan Braga sejak 1998. Spesialis kemeja, celana bahan, dan seragam kantor.',
+                'lat' => -6.91750, 'lng' => 107.60940,
                 'hours' => $this->hours('kantor'),
                 'photos' => ['penjahit-tradisional.jpg', 'mengukur-kain.jpg', 'meteran-jahit.jpg'],
                 'services' => [
@@ -183,9 +185,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Tailor Kebaya Bu Sri',
-                'address' => 'Jl. Kramat Raya No. 45, Senen, Jakarta Pusat',
+                'address' => 'Jl. Buah Batu No. 45, Lengkong, Kota Bandung',
                 'description' => 'Kebaya modern dan brokat untuk wisuda, lamaran, dan pernikahan. Bisa pakai kain sendiri.',
-                'lat' => -6.18950, 'lng' => 106.84410,
+                'lat' => -6.93520, 'lng' => 107.62080,
                 'hours' => $this->hours('mal'),
                 'photos' => ['manekin-kebaya.jpg', 'kebaya-peragaan.jpg', 'kebaya-bali.jpg', 'menjahit-motif.jpg'],
                 'services' => [
@@ -202,10 +204,10 @@ class DatabaseSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Jahit Kilat Tanah Abang',
-                'address' => 'Pasar Tanah Abang Blok A Lt. 3, Jakarta Pusat',
-                'description' => 'Jahit cepat di tengah pasar. Beli kain di bawah, jahit di sini, bisa ditunggu.',
-                'lat' => -6.18610, 'lng' => 106.81330,
+                'name' => 'Jahit Kilat Pasar Baru',
+                'address' => 'Pasar Baru Trade Center Lt. 3, Jl. Otto Iskandardinata, Sumur Bandung, Kota Bandung',
+                'description' => 'Jahit cepat di pusat kain Pasar Baru. Beli kain di bawah, jahit di sini, bisa ditunggu.',
+                'lat' => -6.91780, 'lng' => 107.60460,
                 'hours' => $this->hours('pasar'),
                 'photos' => ['penjahit-pasar-kebumen.jpg', 'penjahit-pasar.jpg', 'kios-penjahit.jpg'],
                 'services' => [
@@ -221,9 +223,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Permak Jeans Mas Andi',
-                'address' => 'Jl. Tebet Raya No. 8, Tebet, Jakarta Selatan',
-                'description' => 'Spesialis vermak jeans: potong, kecilkan, ganti model, sampai tambal robek.',
-                'lat' => -6.22640, 'lng' => 106.85460,
+                'address' => 'Jl. Cihampelas No. 88, Coblong, Kota Bandung',
+                'description' => 'Spesialis vermak jeans di "jalan jeans" Cihampelas: potong, kecilkan, ganti model, sampai tambal robek.',
+                'lat' => -6.89450, 'lng' => 107.60450,
                 'hours' => $this->hours('malam'),
                 'photos' => ['vermak-levis-1.jpg', 'vermak-levis-2.jpg', 'mesin-obras.jpg'],
                 'services' => [
@@ -240,9 +242,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Butik Jahit Melati',
-                'address' => 'Jl. Kemang Raya No. 21, Jakarta Selatan',
-                'description' => 'Butik jahit gaun pesta, bridesmaid, dan busana muslim dengan desain custom.',
-                'lat' => -6.26060, 'lng' => 106.81390,
+                'address' => 'Jl. Ir. H. Juanda (Dago) No. 21, Coblong, Kota Bandung',
+                'description' => 'Butik jahit di Dago untuk gaun pesta, bridesmaid, dan busana muslim dengan desain custom.',
+                'lat' => -6.88560, 'lng' => 107.61350,
                 'hours' => $this->hours('butik'),
                 'photos' => ['penjahit-gaun.jpg', 'penjahit-studio.jpg', 'mesin-jahit-singer.jpg'],
                 'services' => [
@@ -257,9 +259,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Penjahit Seragam Jaya',
-                'address' => 'Jl. Salemba Raya No. 30, Jakarta Pusat',
+                'address' => 'Jl. Jend. Ahmad Yani No. 300, Cibeunying Kidul, Kota Bandung',
                 'description' => 'Seragam sekolah, kantor, dan komunitas. Menerima pesanan satuan maupun partai.',
-                'lat' => -6.19590, 'lng' => 106.85120,
+                'lat' => -6.91100, 'lng' => 107.63950,
                 'hours' => $this->hours('kantor'),
                 'photos' => ['penjahit-sukoharjo.jpg', 'workshop-jahit.jpg'],
                 'services' => [
@@ -274,9 +276,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Rumah Kebaya Ayu',
-                'address' => 'Jl. Pemuda No. 17, Rawamangun, Jakarta Timur',
+                'address' => 'Jl. Dr. Setiabudi No. 17, Sukasari, Kota Bandung',
                 'description' => 'Kebaya kutu baru dan kartini dengan sentuhan modern. Bisa panggilan ukur ke rumah.',
-                'lat' => -6.19310, 'lng' => 106.88370,
+                'lat' => -6.87000, 'lng' => 107.59600,
                 'home_visit' => true,
                 'hours' => $this->hours('butik'),
                 'photos' => ['kebaya-peragaan.jpg', 'manekin-kebaya.jpg', 'kebaya-bali.jpg'],
@@ -293,9 +295,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Tailor Jas Pak Hendra',
-                'address' => 'Jl. Melawai Raya No. 9, Blok M, Jakarta Selatan',
-                'description' => 'Tailor jas dan beskap. Pola dibuat per badan untuk hasil yang presisi.',
-                'lat' => -6.24370, 'lng' => 106.79950,
+                'address' => 'Jl. L.L.R.E. Martadinata (Riau) No. 9, Bandung Wetan, Kota Bandung',
+                'description' => 'Tailor jas dan beskap di kawasan Riau. Pola dibuat per badan untuk hasil yang presisi.',
+                'lat' => -6.90400, 'lng' => 107.61800,
                 'hours' => $this->hours('mal'),
                 'photos' => ['manekin-jas.jpg', 'penjahit-pria.jpg', 'meteran-kain.jpg'],
                 'services' => [
@@ -312,9 +314,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Vermak Kilat Bang Udin',
-                'address' => 'Jl. Raya Ragunan No. 5, Pasar Minggu, Jakarta Selatan',
-                'description' => 'Vermak kilat dari gerobak legendaris Pasar Minggu. Bisa ditunggu.',
-                'lat' => -6.28440, 'lng' => 106.84340,
+                'address' => 'Jl. Kiaracondong No. 5, Kiaracondong, Kota Bandung',
+                'description' => 'Vermak kilat dari gerobak legendaris dekat Stasiun Kiaracondong. Bisa ditunggu.',
+                'lat' => -6.92550, 'lng' => 107.64450,
                 'hours' => $this->hours('malam'),
                 'photos' => ['vermak-levis-2.jpg', 'vermak-levis-1.jpg', 'penjahit-jalanan.jpg'],
                 'services' => [
@@ -329,9 +331,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Butik Gaun Anggun',
-                'address' => 'Jl. Boulevard Raya Blok M1, Kelapa Gading, Jakarta Utara',
+                'address' => 'Jl. Sukajadi No. 21, Sukajadi, Kota Bandung',
                 'description' => 'Gaun pesta, prom, dan gaun anak dengan pilihan bahan premium.',
-                'lat' => -6.15860, 'lng' => 106.90750,
+                'lat' => -6.89050, 'lng' => 107.59350,
                 'hours' => $this->hours('mal'),
                 'photos' => ['penjahit-studio.jpg', 'penjahit-gaun.jpg', 'menjahit-motif.jpg'],
                 'services' => [
@@ -347,9 +349,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Konveksi Seragam Maju',
-                'address' => 'Jl. Cempaka Putih Tengah No. 22, Jakarta Pusat',
-                'description' => 'Konveksi seragam sekolah dan kantor, harga grosir untuk pesanan partai.',
-                'lat' => -6.17670, 'lng' => 106.86870,
+                'address' => 'Jl. PHH Mustofa (Suci) No. 22, Cibeunying Kidul, Kota Bandung',
+                'description' => 'Konveksi di sentra kaos Suci. Seragam sekolah dan kantor, harga grosir untuk pesanan partai.',
+                'lat' => -6.90400, 'lng' => 107.63550,
                 'hours' => $this->hours('kantor'),
                 'photos' => ['kios-penjahit.jpg', 'mengukur-kain.jpg', 'penjahit-pasar.jpg'],
                 'services' => [
@@ -365,9 +367,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Penjahit Panggilan Pak Darto',
-                'address' => 'Jl. Kebayoran Lama Raya No. 40, Jakarta Selatan',
+                'address' => 'Jl. Terusan Jakarta No. 40, Antapani, Kota Bandung',
                 'description' => 'Penjahit keliling: datang ke rumah untuk ukur, ambil, dan antar jahitan.',
-                'lat' => -6.24770, 'lng' => 106.78360,
+                'lat' => -6.91350, 'lng' => 107.65850,
                 'home_visit' => true,
                 'hours' => $this->hours('kantor'),
                 'photos' => ['vermak-keliling.jpg', 'penjahit-rumahan.jpg', 'meteran-jahit.jpg'],
