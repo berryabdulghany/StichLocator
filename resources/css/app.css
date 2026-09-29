@@ -113,7 +113,7 @@
 
 /* Redam warna tile OSM supaya peta terlihat clean (base putih) */
 .map-tiles-muted {
-    filter: saturate(0.35) brightness(1.04) contrast(0.95);
+    filter: grayscale(0.85) brightness(1.08) contrast(0.82);
 }
 
 /* Leaflet: samakan kontrol peta dengan gaya kartu StichLocator */
@@ -136,33 +136,49 @@
 |--------------------------------------------------------------------------
 */
 
-/* Marker pill: ikon jarum benang + rating. Nama muncul saat hover/terpilih. */
+/*
+ * Marker pill + ekor segitiga (seperti pin yang menunjuk titik lokasi).
+ * Buka  : navy penuh (paling menonjol)
+ * Tutup : biru muda bertepi navy + titik abu-abu (tetap jelas di atas peta)
+ * Pilih : terracotta, sedikit membesar
+ */
 .sl-pin {
-    @apply inline-flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full
-           border border-stone-300 bg-white py-1 pl-1.5 pr-2 text-xs font-bold text-stone-800 shadow-md transition;
+    @apply relative inline-flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border-2 border-navy-700
+           bg-navy-700 py-0.5 pl-1.5 pr-2 text-xs font-bold text-white transition;
+    transform: translate(-50%, calc(-100% - 7px));
+    box-shadow: 0 2px 6px rgba(7, 40, 73, 0.35), 0 0 0 2px #fff;
+}
+.sl-pin::after {
+    content: '';
+    @apply absolute left-1/2 top-full h-2.5 w-2.5 border-b-2 border-r-2 border-inherit bg-inherit;
+    transform: translate(-50%, -55%) rotate(45deg);
 }
 .sl-pin i {
-    @apply text-sm text-navy-700;
+    @apply text-sm;
 }
 .sl-pin .sl-pin-name {
     @apply hidden max-w-[10rem] truncate font-semibold;
 }
 .sl-pin.is-closed {
-    @apply border-stone-200 bg-stone-50 text-stone-400;
+    @apply border-navy-600 bg-navy-100 text-navy-800;
 }
 .sl-pin.is-closed i {
-    @apply text-stone-400;
+    @apply text-navy-700;
+}
+.sl-pin.is-closed::before {
+    content: '';
+    @apply absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-stone-400;
 }
 .sl-pin.is-hover,
 .sl-pin.is-active {
-    @apply z-10 scale-110 border-navy-700;
+    transform: translate(-50%, calc(-100% - 7px)) scale(1.12);
 }
 .sl-pin.is-hover .sl-pin-name,
 .sl-pin.is-active .sl-pin-name {
     @apply inline;
 }
 .sl-pin.is-active {
-    @apply bg-navy-700 text-white;
+    @apply border-terra-500 bg-terra-500 text-white;
 }
 .sl-pin.is-active i {
     @apply text-white;
@@ -174,8 +190,9 @@
 
 /* Cluster "gulungan benang": lingkaran bergaris ganda berisi jumlah penjahit */
 .sl-spool {
-    @apply flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-navy-700 shadow-md;
-    border: 4px double theme('colors.navy.700');
+    @apply flex h-10 w-10 items-center justify-center rounded-full bg-navy-700 text-sm font-bold text-white;
+    border: 4px double #fff;
+    box-shadow: 0 2px 8px rgba(7, 40, 73, 0.4), 0 0 0 2px theme('colors.navy.700');
 }
 
 /* Kartu penjahit di daftar */
@@ -186,16 +203,19 @@
     @apply bg-navy-50 ring-1 ring-navy-600/40;
 }
 
-/* Kategori aktif di bar kategori */
-.category-tab {
-    @apply flex min-w-[4.5rem] shrink-0 flex-col items-center gap-1 border-b-2 border-transparent px-2 pb-2 pt-1 text-xs
-           font-medium text-stone-500 transition hover:text-stone-800;
+/* Chip kategori yang melayang di atas peta (ala Google Maps) */
+.map-chip {
+    @apply inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white px-3.5 py-1.5 text-sm font-medium
+           text-stone-700 shadow-md ring-1 ring-black/5 transition hover:bg-stone-50;
 }
-.category-tab i {
-    @apply text-xl;
+.map-chip i {
+    @apply text-base text-stone-500;
 }
-.category-tab.is-active {
-    @apply border-navy-700 text-navy-700;
+.map-chip.is-active {
+    @apply bg-navy-700 text-white ring-navy-700 hover:bg-navy-800;
+}
+.map-chip.is-active i {
+    @apply text-white;
 }
 
 /* Bottom sheet daftar penjahit (layar kecil) */
@@ -213,6 +233,11 @@
     .leaflet-control-zoom {
         display: none;
     }
+    /* Naikkan atribusi peta agar tidak tertutup bottom sheet */
+    /* Selektor lebih spesifik agar tidak kalah oleh leaflet.css yang dimuat belakangan */
+    .leaflet-container .leaflet-bottom {
+        bottom: 8.25rem;
+    }
 }
 
 /* Drawer detail penjahit */
@@ -226,4 +251,32 @@
 /* Garis titik-titik penghubung di "nota jahit" */
 .nota-leader {
     @apply mx-2 flex-1 translate-y-[-0.3em] border-b border-dotted border-stone-400;
+}
+
+/* Titik lokasi pengguna dengan denyut */
+.sl-user-dot {
+    @apply relative block h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-navy-600;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.sl-user-dot::after {
+    content: '';
+    @apply absolute -inset-2 animate-ping rounded-full bg-navy-500/30;
+}
+
+/* Label radius "pita ukur" di tepi lingkaran */
+.sl-radius-label {
+    @apply inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-md border border-navy-700
+           bg-white px-1.5 py-0.5 text-[11px] font-bold text-navy-700 shadow-sm;
+}
+
+/* Tombol "Lokasi saya" sebagai kontrol Leaflet */
+.sl-locate {
+    @apply flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl text-navy-700 shadow-md ring-1 ring-black/5
+           transition hover:bg-stone-50;
+}
+.sl-locate.is-active {
+    @apply text-navy-600;
+}
+.sl-locate.is-loading i {
+    @apply animate-spin;
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PenjahitController;
+use App\Http\Controllers\RouteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,11 @@ Route::get('/', [ExploreController::class, 'index'])->name('dashboard');
 
 // Detail penjahit (link yang bisa dibagikan), misalnya /penjahit/tailor-kebaya-bu-sri
 Route::get('/penjahit/{location:slug}', [PenjahitController::class, 'show'])->name('penjahit.show');
+
+// Pratinjau rute (proxy ke OpenRouteService, API key tetap di server)
+Route::get('/rute', [RouteController::class, 'show'])
+    ->middleware('throttle:30,1')
+    ->name('route.preview');
 
 // Ganti bahasa (ID | EN)
 Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');

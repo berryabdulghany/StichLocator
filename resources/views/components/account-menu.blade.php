@@ -26,7 +26,7 @@
         </div>
     </details>
 @else
-    <a href="{{ route('login') }}" class="btn-primary py-1.5">
-        <i class="ti ti-login-2" aria-hidden="true"></i>{{ __('Log in') }}
+    <a href="{{ route('login') }}" class="btn-primary px-3 py-1.5" aria-label="{{ __('Log in') }}">
+        <i class="ti ti-login-2" aria-hidden="true"></i><span class="hidden sm:inline">{{ __('Log in') }}</span>
     </a>
 @endauth

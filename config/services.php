@@ -28,6 +28,12 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    // Penghitung rute untuk pratinjau rute di peta (https://openrouteservice.org, gratis 2.000 permintaan/hari)
+    'openrouteservice' => [
+        'key' => env('ORS_API_KEY'),
+        'url' => env('ORS_API_URL', 'https://api.openrouteservice.org'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

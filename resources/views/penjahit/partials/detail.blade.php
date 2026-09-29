@@ -65,10 +65,16 @@
                 <i class="ti ti-brand-whatsapp text-lg" aria-hidden="true"></i>{{ __('Chat on WhatsApp') }}
             </a>
         @endif
+        {{-- Di halaman peta, klik ini menampilkan pratinjau rute; tanpa JS langsung membuka Google Maps --}}
         <a href="https://www.google.com/maps/dir/?api=1&destination={{ $location->lat }},{{ $location->lng }}" target="_blank" rel="noopener"
+           data-route data-id="{{ $location->id }}"
            class="btn-icon" title="{{ __('Route') }}" aria-label="{{ __('Route') }}">
             <i class="ti ti-route" aria-hidden="true"></i>
         </a>
+        <button type="button" data-save data-id="{{ $location->id }}" aria-pressed="false"
+                class="btn-icon" title="{{ __('Save') }}" aria-label="{{ __('Save') }}">
+            <i class="ti ti-bookmark" aria-hidden="true"></i>
+        </button>
         <button type="button" data-share class="btn-icon" title="{{ __('Share') }}" aria-label="{{ __('Share') }}">
             <i class="ti ti-share" aria-hidden="true"></i>
         </button>

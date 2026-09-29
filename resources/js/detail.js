@@ -2,18 +2,59 @@
  * Interaksi di detail penjahit (drawer halaman peta & halaman /penjahit/{slug}):
  * bagikan, lightbox foto, input bintang, dan kirim ulasan.
  */
+import { isSaved, toggleSaved } from './lib/saved';
+
 const t = window.t;
 const escapeHtml = window.escapeHtml;
 
-export function initDetail(root, { onReviewSubmitted } = {}) {
+/**
+ * @param {Element} root
+ * @param {{ onReviewSubmitted?: Function, onRoute?: (id: number) => void }} options
+ *   onRoute: jika diisi (halaman peta), klik tombol Rute menampilkan pratinjau rute
+ *   alih-alih membuka Google Maps.
+ */
+export function initDetail(root, { onReviewSubmitted, onRoute } = {}) {
     const article = root.querySelector('[data-detail]');
     if (!article) {
         return;
     }
 
     initShare(article);
+    initSave(article);
+    initRoute(article, onRoute);
     initLightbox(article);
     initReviewForm(article, onReviewSubmitted);
+}
+
+function initSave(article) {
+    const button = article.querySelector('[data-save]');
+    if (!button) {
+        return;
+    }
+
+    const paint = (saved) => {
+        button.setAttribute('aria-pressed', String(saved));
+        button.setAttribute('aria-label', saved ? t('Saved') : t('Save'));
+        button.title = saved ? t('Saved') : t('Save');
+        button.classList.toggle('text-terra-600', saved);
+        button.classList.toggle('border-terra-300', saved);
+        button.querySelector('i').className = `ti ${saved ? 'ti-bookmark-filled' : 'ti-bookmark'}`;
+    };
+
+    paint(isSaved(button.dataset.id));
+    button.addEventListener('click', () => paint(toggleSaved(button.dataset.id)));
+}
+
+function initRoute(article, onRoute) {
+    const link = article.querySelector('[data-route]');
+    if (!link || !onRoute) {
+        return;
+    }
+
+    link.addEventListener('click', (event) => {
+        event.preventDefault();
+        onRoute(Number(link.dataset.id));
+    });
 }
 
 function initShare(article) {
