@@ -25,20 +25,22 @@
     'sticky top-0 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80' => $contained,
     'relative bg-white' => ! $contained,
 ])>
+    {{-- HP: flex (pencarian turun ke baris kedua). Desktop: grid 3 kolom dengan kolom kiri & kanan
+         sama lebar (1fr), sehingga pencarian/menu di kolom tengah selalu tepat di tengah layar. --}}
     <div @class([
-        'flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5 lg:flex-nowrap',
+        'flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5 lg:grid lg:grid-cols-[1fr_auto_1fr]',
         'mx-auto max-w-6xl px-4 lg:px-6' => $contained,
         'px-4 lg:px-6' => ! $contained,
     ])>
-        <x-logo class="shrink-0" />
+        <x-logo class="shrink-0 lg:justify-self-start" />
 
         {{-- Slot pencarian (hanya di halaman peta). Di layar kecil pindah ke baris kedua. --}}
         @if (trim($slot))
-            <div class="order-last w-full lg:order-none lg:mx-auto lg:w-auto lg:max-w-xl lg:flex-1">
+            <div class="order-last w-full lg:order-none lg:w-[34rem] xl:w-[40rem]">
                 {{ $slot }}
             </div>
         @elseif ($links)
-            <nav class="mx-auto hidden md:block" aria-label="{{ __('Main menu') }}">
+            <nav class="mx-auto hidden md:block lg:mx-0" aria-label="{{ __('Main menu') }}">
                 <ul class="flex items-center gap-1">
                     @foreach ($links as $link)
                         <li>
@@ -53,10 +55,13 @@
                     @endforeach
                 </ul>
             </nav>
+        @else
+            {{-- Pengisi kolom tengah agar aksi tetap di kolom kanan --}}
+            <div class="hidden lg:block" aria-hidden="true"></div>
         @endif
 
         {{-- Aksi di kanan atas: bahasa + akun/masuk --}}
-        <div class="ml-auto flex shrink-0 items-center gap-2">
+        <div class="ml-auto flex shrink-0 items-center gap-2 lg:justify-self-end">
             @if ($links && ! trim($slot))
                 {{-- Di HP menu tengah disembunyikan; tautan peta tetap ada sebagai ikon --}}
                 <a href="{{ route('dashboard') }}" class="btn-icon md:hidden" aria-label="{{ __('Tailor map') }}">
