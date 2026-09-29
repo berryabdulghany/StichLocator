@@ -24,6 +24,43 @@ export function initDetail(root, { onReviewSubmitted, onRoute } = {}) {
     initRoute(article, onRoute);
     initLightbox(article);
     initReviewForm(article, onReviewSubmitted);
+    initReportForms(article);
+}
+
+function initReportForms(article) {
+    article.querySelectorAll('[data-report-form]').forEach((form) => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const errorEl = form.querySelector('[data-report-error]');
+            const button = form.querySelector('button[type="submit"]');
+            errorEl.classList.add('hidden');
+            button.disabled = true;
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        Accept: 'application/json',
+                    },
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.errors ? Object.values(data.errors)[0][0] : (data.message || t('Failed to send report.')));
+                }
+
+                // Ganti formulir dengan pesan terima kasih
+                const details = form.closest('[data-report]');
+                details.outerHTML = `<p class="mt-1 flex items-center gap-1 text-xs text-emerald-700"><i class="ti ti-circle-check" aria-hidden="true"></i>${escapeHtml(data.message)}</p>`;
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+                button.disabled = false;
+            }
+        });
+    });
 }
 
 function initSave(article) {

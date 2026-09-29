@@ -15,6 +15,9 @@ class PenjahitController extends Controller
      */
     public function show(Request $request, Location $location)
     {
+        // Penjahit berstatus draf hanya bisa dipratinjau admin
+        abort_unless($location->is_published || auth('admin')->check(), 404);
+
         $location->load(['services', 'hours', 'photos', 'reviews' => fn ($q) => $q->with('user')->latest()]);
 
         $data = [

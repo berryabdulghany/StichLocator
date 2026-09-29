@@ -1,425 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Admin Dashboard for Penjahit Management System" />
-        <meta name="author" content="" />
-        <title>Dashboard Admin</title>
-        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-        <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <style>
-            .card {
-                transition: transform 0.2s ease-in-out;
-                border: none;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            .card:hover {
-                transform: translateY(-5px);
-            }
-            .stat-card-icon {
-                font-size: 2.5rem;
-                opacity: 0.8;
-            }
-            .chart-container {
-                position: relative;
-                height: 300px;
-                margin: 20px 0;
-            }
-            .nav-link {
-                padding: 0.75rem 1rem;
-                transition: all 0.2s ease-in-out;
-            }
-            .nav-link:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-            }
-            .sb-sidenav-menu-heading {
-                padding: 1.75rem 1rem 0.75rem;
-                font-size: 0.7rem;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-            }
-            .table-responsive {
-                border-radius: 0.5rem;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            }
-        </style>
-    </head>
-    <body class="sb-nav-fixed">
-        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-            <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" href="{{ route('admin.dashboard') }}">
-                <i class="fas fa-scissors me-2"></i>
-                Admin Panel
-            </a>
-            <!-- Sidebar Toggle-->
-            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-                <i class="fas fa-bars"></i>
-            </button>
-            <!-- Navbar Search
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-                <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
-                </div>
-            </form> -->
-            <!-- Navbar-->
-            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle fa-fw"></i>
-                        @auth('admin')
-                            {{ Auth::guard('admin')->user()->name }}
-                        @endauth
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                        <li><a class="dropdown-item" href="#!"><i class="fas fa-list me-2"></i>Activity Log</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li>
-                            <form action="{{ route('admin.logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="dropdown-item">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
-        <div id="layoutSidenav">
-            <div id="layoutSidenav_nav">
-                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                    <div class="sb-sidenav-menu">
-                        <div class="nav">
-                            <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Dashboard
-                            </a>
-                            <div class="sb-sidenav-menu-heading">Management</div>
-                            <a class="nav-link" href="{{ route('admin.users') }}">
-                                <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                                Data Users
-                            </a>
-                            <a class="nav-link" href="{{ route('datapenjahit') }}">
-                                <div class="sb-nav-link-icon"><i class="fas fa-user-tie"></i></div>
-                                Data Penjahit
-                            </a>
-                            <div class="sb-sidenav-menu-heading">Analytics</div>
-                            <a class="nav-link" href="{{ route('rating_review') }}">
-                                <div class="sb-nav-link-icon"><i class="fas fa-star"></i></div>
-                                Rating dan Review
-                            </a>
-                        </div>
-                    </div>
-                    <div class="sb-sidenav-footer">
-                        <div class="small">Logged in as:</div>
-                        @auth('admin')
-                            {{ Auth::guard('admin')->user()->name }}
-                        @endauth
-                    </div>
-                </nav>
-            </div>
-            <div id="layoutSidenav_content">
-                <main>
-                    <div class="container-fluid px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h1 class="mt-4">Dashboard</h1>
-                            <ol class="breadcrumb mb-4">
-                                <li class="breadcrumb-item active">Overview</li>
-                            </ol>
-                        </div>
-                        
-                        @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
+@extends('layouts.admin', ['title' => __('Dashboard')])
 
-                        <!-- Statistics Cards -->
-                        <div class="row">
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-primary text-white mb-4">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h3 class="mb-0">{{ $totalPenjahit }}</h3>
-                                                <div class="small">Total Penjahit</div>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fas fa-user-tie"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="{{ route('datapenjahit') }}">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-warning text-white mb-4">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h3 class="mb-0">{{ $totalReviews }}</h3>
-                                                <div class="small">Total Reviews</div>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fas fa-comments"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="{{ route('rating_review') }}">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-success text-white mb-4">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h3 class="mb-0">{{ number_format($averageRating, 1) }}</h3>
-                                                <div class="small">Average Rating</div>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="{{ route('rating_review') }}">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-danger text-white mb-4">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h3 class="mb-0">{{ $totalUsers }}</h3>
-                                                <div class="small">Total Users</div>
-                                            </div>
-                                            <div class="stat-card-icon">
-                                                <i class="fas fa-users"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="{{ route('admin.users') }}">View Details</a>
-                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+@section('actions')
+    <a href="{{ route('admin.tailors.create') }}" class="btn-primary hidden py-1.5 sm:inline-flex">
+        <i class="ti ti-plus" aria-hidden="true"></i>{{ __('Add tailor') }}
+    </a>
+@endsection
 
-                        <!-- Charts Row -->
-                        <div class="row">
-                            <div class="col-xl-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-bar me-1"></i>
-                                        Rating Distribution
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="ratingDistributionChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <i class="fas fa-chart-line me-1"></i>
-                                        Reviews Over Time
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="reviewsTimelineChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+@section('content')
+    {{-- ============================== KARTU STATISTIK ============================== --}}
+    @php
+        $cards = [
+            ['icon' => 'needle-thread', 'label' => __('Tailors'), 'value' => $stats['tailors'], 'note' => __(':count open now', ['count' => $stats['open_now']]), 'route' => 'admin.tailors.index'],
+            ['icon' => 'message-circle', 'label' => __('Reviews'), 'value' => $stats['reviews'], 'note' => __('+:count in the last 30 days', ['count' => $stats['reviews_recent']]), 'route' => 'admin.reviews.index'],
+            ['icon' => 'star', 'label' => __('Average rating'), 'value' => number_format($stats['rating'], 1), 'note' => __('from all reviews'), 'route' => 'admin.reviews.index'],
+            ['icon' => 'users', 'label' => __('Users'), 'value' => $stats['users'], 'note' => __('+:count in the last 30 days', ['count' => $stats['users_recent']]), 'route' => 'admin.users.index'],
+        ];
+    @endphp
 
-                        <!-- Recent Reviews Table -->
-                        <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-table me-1"></i>
-                                    Recent Reviews
-                                </div>
-                                <a href="{{ route('rating_review') }}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-eye me-1"></i>View All
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="recentReviewsTable" class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Penjahit</th>
-                                                <th>Rating</th>
-                                                <th>Review</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($recentReviews as $review)
-                                            <tr>
-                                                <td>{{ $review->location->name ?? 'N/A' }}</td>
-                                                <td>
-                                                    @for($i = 0; $i < $review->rating; $i++)
-                                                        <i class="fas fa-star text-warning"></i>
-                                                    @endfor
-                                                </td>
-                                                <td>{{ Str::limit($review->review, 100) }}</td>
-                                                <td>{{ $review->created_at->format('d M Y') }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-                <footer class="py-4 bg-light mt-auto">
-                    <div class="container-fluid px-4">
-                        <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Penjahit Management System 2024</div>
-                            <div>
-                                <a href="#">Privacy Policy</a>
-                                &middot;
-                                <a href="#">Terms &amp; Conditions</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            </div>
+    @if ($todo['reports'] || $todo['drafts'])
+        <div class="mb-6 flex flex-wrap gap-3">
+            @if ($todo['reports'])
+                <a href="{{ route('admin.reviews.index', ['reported' => 1]) }}" class="flex items-center gap-2 rounded-lg border border-terra-200 bg-terra-50 px-4 py-2.5 text-sm font-medium text-terra-800 hover:bg-terra-100">
+                    <i class="ti ti-flag" aria-hidden="true"></i>{{ trans_choice(':count reported review needs checking|:count reported reviews need checking', $todo['reports']) }}
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </a>
+            @endif
+            @if ($todo['drafts'])
+                <a href="{{ route('admin.tailors.index', ['status' => 'draft']) }}" class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-900 hover:bg-amber-100">
+                    <i class="ti ti-eye-off" aria-hidden="true"></i>{{ trans_choice(':count tailor is still a draft|:count tailors are still drafts', $todo['drafts']) }}
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </a>
+            @endif
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="{{ asset('js/scripts.js') }}"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Initialize DataTable
-                const datatablesSimple = document.getElementById('recentReviewsTable');
-                if (datatablesSimple) {
-                    new simpleDatatables.DataTable(datatablesSimple);
-                }
+    @endif
 
-                // Rating Distribution Chart
-                const ratingCtx = document.getElementById("ratingDistributionChart").getContext('2d');
-                new Chart(ratingCtx, {
-                    type: "bar",
-                    data: {
-                        labels: ["1 ⭐", "2 ⭐", "3 ⭐", "4 ⭐", "5 ⭐"],
-                        datasets: [{
-                            label: "Jumlah Review",
-                            backgroundColor: [
-                                "rgba(220, 53, 69, 0.8)",   // Merah
-                                "rgba(255, 193, 7, 0.8)",   // Kuning
-                                "rgba(253, 126, 20, 0.8)",  // Oranye
-                                "rgba(32, 201, 151, 0.8)",  // Hijau Muda
-                                "rgba(25, 135, 84, 0.8)"    // Hijau
-                            ],
-                            borderColor: [
-                                "rgb(220, 53, 69)",
-                                "rgb(255, 193, 7)",
-                                "rgb(253, 126, 20)",
-                                "rgb(32, 201, 151)",
-                                "rgb(25, 135, 84)"
-                            ],
-                            borderWidth: 1,
-                            data: {!! json_encode(array_values($ratingDistribution)) !!}
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Distribusi Rating',
-                                font: {
-                                    size: 16
-                                }
-                            }
-                        }
-                    }
-                });
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @foreach ($cards as $card)
+            <a href="{{ route($card['route']) }}" class="card group flex items-start gap-4 p-5 transition hover:border-navy-300 hover:shadow-md">
+                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy-50 text-xl text-navy-700 transition group-hover:bg-navy-700 group-hover:text-white">
+                    <i class="ti ti-{{ $card['icon'] }}" aria-hidden="true"></i>
+                </span>
+                <div>
+                    <p class="text-sm text-stone-500">{{ $card['label'] }}</p>
+                    <p class="text-2xl font-bold text-stone-900">{{ $card['value'] }}</p>
+                    <p class="mt-0.5 text-xs text-stone-500">{{ $card['note'] }}</p>
+                </div>
+            </a>
+        @endforeach
+    </div>
 
-                // Reviews Timeline Chart
-                const timelineCtx = document.getElementById("reviewsTimelineChart").getContext('2d');
-                const timelineLabels = {!! json_encode($reviewsTimeline->pluck('date')) !!};
-                const timelineData = {!! json_encode($reviewsTimeline->pluck('count')) !!};
+    <div class="mt-6 grid gap-6 xl:grid-cols-3">
+        {{-- ============================== GRAFIK ULASAN HARIAN ============================== --}}
+        @php($max = max(1, $timeline->max('value')))
+        <section class="card p-5 xl:col-span-2" aria-labelledby="chart-title">
+            <div class="flex items-baseline justify-between gap-2">
+                <h2 id="chart-title" class="font-semibold text-stone-900">{{ __('Reviews per day, last 30 days') }}</h2>
+                <p class="text-sm text-stone-500">{{ __(':count total', ['count' => $timeline->sum('value')]) }}</p>
+            </div>
 
-                new Chart(timelineCtx, {
-                    type: "line",
-                    data: {
-                        labels: timelineLabels,
-                        datasets: [{
-                            label: "Jumlah Review",
-                            data: timelineData,
-                            fill: true,
-                            borderColor: "rgb(59, 130, 246)",
-                            backgroundColor: "rgba(59, 130, 246, 0.1)",
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: "rgb(59, 130, 246)",
-                            pointBorderColor: "rgb(255, 255, 255)",
-                            pointBorderWidth: 2,
-                            pointHoverRadius: 6,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Review per Hari (7 Hari Terakhir)',
-                                font: {
-                                    size: 16
-                                }
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-    </body>
-</html>
+            <div class="mt-5 flex gap-2" aria-hidden="true">
+                {{-- Sumbu Y: hanya nilai maksimum dan nol --}}
+                <div class="flex h-48 flex-col justify-between py-0 text-right text-[11px] text-stone-400">
+                    <span>{{ $max }}</span>
+                    <span>0</span>
+                </div>
+                <div class="relative flex-1">
+                    <div class="absolute inset-x-0 top-0 border-t border-dashed border-stone-200"></div>
+                    <div class="absolute inset-x-0 top-1/2 border-t border-dashed border-stone-200"></div>
+                    <div class="relative flex h-48 items-end gap-[2px] border-b border-stone-300">
+                        @foreach ($timeline as $day)
+                            <div class="group relative flex h-full flex-1 items-end justify-center">
+                                <div class="w-full max-w-[14px] rounded-t bg-navy-600 transition group-hover:bg-navy-800"
+                                     style="height: {{ $day['value'] ? max(4, $day['value'] / $max * 100) : 0 }}%"></div>
+                                {{-- Tooltip --}}
+                                <div class="pointer-events-none absolute bottom-full z-10 mb-2 hidden whitespace-nowrap rounded-lg bg-stone-900 px-2 py-1 text-xs text-white shadow-lg group-hover:block">
+                                    {{ $day['label'] }}: <b class="font-semibold">{{ trans_choice(':count review|:count reviews', $day['value'], ['count' => $day['value']]) }}</b>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-1.5 flex justify-between text-[11px] text-stone-400">
+                        <span>{{ $timeline->first()['label'] }}</span>
+                        <span>{{ $timeline[14]['label'] ?? '' }}</span>
+                        <span>{{ $timeline->last()['label'] }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tabel alternatif untuk pembaca layar --}}
+            <table class="sr-only">
+                <caption>{{ __('Reviews per day, last 30 days') }}</caption>
+                <thead><tr><th scope="col">{{ __('Date') }}</th><th scope="col">{{ __('Reviews') }}</th></tr></thead>
+                <tbody>
+                    @foreach ($timeline as $day)
+                        <tr><td>{{ $day['label'] }}</td><td>{{ $day['value'] }}</td></tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </section>
+
+        {{-- ============================== DISTRIBUSI RATING ============================== --}}
+        @php($ratingTotal = max(1, $distribution->sum()))
+        <section class="card p-5" aria-labelledby="rating-title">
+            <h2 id="rating-title" class="font-semibold text-stone-900">{{ __('Rating distribution') }}</h2>
+            <dl class="mt-5 space-y-3">
+                @foreach ($distribution->sortKeysDesc() as $star => $count)
+                    <div class="flex items-center gap-3 text-sm">
+                        <dt class="w-8 shrink-0 text-stone-600">{{ $star }} <span class="rating-star">★</span></dt>
+                        <dd class="flex flex-1 items-center gap-3">
+                            <span class="h-2.5 flex-1 rounded-full bg-stone-100">
+                                <span class="block h-2.5 rounded-full bg-terra-500" style="width: {{ round($count / $ratingTotal * 100) }}%"></span>
+                            </span>
+                            <span class="w-16 shrink-0 text-right text-stone-600">{{ $count }} <span class="text-stone-400">({{ round($count / $ratingTotal * 100) }}%)</span></span>
+                        </dd>
+                    </div>
+                @endforeach
+            </dl>
+
+            <h2 class="mt-8 font-semibold text-stone-900">{{ __('Tailors per category') }}</h2>
+            @php($categoryMax = max(1, $categories->max('value')))
+            <dl class="mt-4 space-y-3">
+                @foreach ($categories as $category)
+                    <div class="flex items-center gap-3 text-sm">
+                        <dt class="w-20 shrink-0 truncate text-stone-600">{{ $category['label'] }}</dt>
+                        <dd class="flex flex-1 items-center gap-3">
+                            <span class="h-2.5 flex-1 rounded-full bg-stone-100">
+                                <span class="block h-2.5 rounded-full bg-navy-600" style="width: {{ round($category['value'] / $categoryMax * 100) }}%"></span>
+                            </span>
+                            <span class="w-6 shrink-0 text-right text-stone-600">{{ $category['value'] }}</span>
+                        </dd>
+                    </div>
+                @endforeach
+            </dl>
+        </section>
+    </div>
+
+    <div class="mt-6 grid gap-6 xl:grid-cols-3">
+        {{-- ============================== ULASAN TERBARU ============================== --}}
+        <section class="card xl:col-span-2" aria-labelledby="recent-title">
+            <div class="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+                <h2 id="recent-title" class="font-semibold text-stone-900">{{ __('Latest reviews') }}</h2>
+                <a href="{{ route('admin.reviews.index') }}" class="text-sm font-semibold text-navy-700 hover:underline">{{ __('See all') }}</a>
+            </div>
+            <ul class="divide-y divide-stone-100">
+                @forelse ($recentReviews as $review)
+                    <li class="flex gap-3 px-5 py-3">
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-50 text-sm font-bold text-navy-700">
+                            {{ mb_strtoupper(mb_substr($review->user->name ?? '?', 0, 1)) }}
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm">
+                                <span class="font-semibold text-stone-900">{{ $review->user->name ?? __('Anonymous') }}</span>
+                                <span class="text-stone-400">→</span>
+                                <span class="text-stone-700">{{ $review->location->name ?? __('Deleted tailor') }}</span>
+                            </p>
+                            <p class="truncate text-sm text-stone-500">{{ $review->review }}</p>
+                        </div>
+                        <div class="shrink-0 text-right text-xs">
+                            <p class="rating-star">{{ str_repeat('★', $review->rating) }}</p>
+                            <p class="text-stone-400">{{ $review->created_at->diffForHumans() }}</p>
+                        </div>
+                    </li>
+                @empty
+                    <li class="px-5 py-8 text-center text-sm text-stone-500">{{ __('No reviews yet.') }}</li>
+                @endforelse
+            </ul>
+        </section>
+
+        {{-- ============================== PERLU PERHATIAN ============================== --}}
+        <section class="card" aria-labelledby="attention-title">
+            <div class="border-b border-stone-100 px-5 py-4">
+                <h2 id="attention-title" class="font-semibold text-stone-900">{{ __('Needs attention') }}</h2>
+                <p class="text-xs text-stone-500">{{ __('Tailors with the lowest rating') }}</p>
+            </div>
+            <ul class="divide-y divide-stone-100">
+                @forelse ($needsAttention as $tailor)
+                    <li>
+                        <a href="{{ route('admin.tailors.edit', $tailor) }}" class="flex items-center gap-3 px-5 py-3 hover:bg-stone-50">
+                            <img src="{{ $tailor->cover_url }}" alt="" class="h-10 w-10 rounded-lg bg-navy-50 object-cover">
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-semibold text-stone-900">{{ $tailor->name }}</p>
+                                <p class="text-xs text-stone-500">{{ trans_choice(':count review|:count reviews', $tailor->review_count, ['count' => $tailor->review_count]) }}</p>
+                            </div>
+                            <span class="text-sm font-semibold text-stone-700"><span class="rating-star">★</span> {{ number_format($tailor->rating, 1) }}</span>
+                        </a>
+                    </li>
+                @empty
+                    <li class="px-5 py-8 text-center text-sm text-stone-500">{{ __('No reviews yet.') }}</li>
+                @endforelse
+            </ul>
+        </section>
+    </div>
+@endsection

@@ -159,7 +159,7 @@
                         <i class="ti ti-camera" aria-hidden="true"></i>{{ __('Change photo') }}
                     </label>
                     <input type="file" name="profile_picture" id="profile_picture" accept="image/jpeg,image/png,image/webp" class="sr-only">
-                    <p class="mt-1 text-xs text-stone-500">{{ __('Max 2 MB. JPG, PNG, or WebP.') }}</p>
+                    <p class="mt-1 text-xs text-stone-500">{{ __('Max 6 MB. JPG, PNG, or WebP.') }}</p>
                 </div>
             </div>
 

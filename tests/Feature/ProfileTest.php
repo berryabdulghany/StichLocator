@@ -62,7 +62,7 @@ class ProfileTest extends TestCase
         $this->assertModelMissing($mine);
 
         // Rating & jumlah ulasan penjahit ikut dihitung ulang
-        $this->assertSame(1, $this->location->fresh()->reviews);
+        $this->assertSame(1, $this->location->fresh()->review_count);
         $this->assertEquals(3, $this->location->fresh()->rating);
     }
 

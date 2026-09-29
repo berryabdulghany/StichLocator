@@ -9,6 +9,15 @@
 */
 
 return [
+    'boolean' => ':Attribute harus bernilai benar atau salah.',
+    'gte' => [
+        'numeric' => ':Attribute harus lebih besar atau sama dengan :value.',
+    ],
+    'regex' => 'Format :attribute tidak valid.',
+    'required_if' => ':Attribute wajib diisi.',
+    'size' => [
+        'array' => ':Attribute harus berisi :size item.',
+    ],
     'between' => [
         'numeric' => ':Attribute harus di antara :min dan :max.',
         'string' => ':Attribute harus di antara :min dan :max karakter.',
