@@ -8,7 +8,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $locations = Location::withCount('reviews')->get()->each(function ($location) {
+        $locations = Location::withCount('reviews')->with('hours')->get()->each(function ($location) {
             // Status dihitung dari jam operasional saat ini (WIB), bukan dari kolom status
             $location->status = $location->isOpenNow() ? 'open' : 'closed';
         });

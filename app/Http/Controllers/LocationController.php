@@ -16,7 +16,7 @@ class LocationController extends Controller
 
     public function index()
     {
-        $locations = Location::all()->each(function ($location) {
+        $locations = Location::with('hours')->get()->each(function ($location) {
             $location->dynamic_status = $location->isOpenNow() ? 'Buka' : 'Tutup';
         });
 
@@ -25,7 +25,9 @@ class LocationController extends Controller
 
     public function store(Request $request)
     {
-        Location::create($this->validatedData($request));
+        $data = $this->validatedData($request);
+        $location = Location::create($data);
+        $location->syncDailyHours(...$this->openingRange($data));
 
         return redirect()->route('datapenjahit')->with('success', 'Data penjahit berhasil ditambahkan.');
     }
@@ -33,7 +35,9 @@ class LocationController extends Controller
     public function update(Request $request, $id)
     {
         $location = Location::findOrFail($id);
-        $location->update($this->validatedData($request));
+        $data = $this->validatedData($request);
+        $location->update($data);
+        $location->syncDailyHours(...$this->openingRange($data));
 
         return redirect()->route('datapenjahit')->with('success', 'Data penjahit berhasil diperbarui.');
     }
@@ -54,7 +58,8 @@ class LocationController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'telepon' => 'nullable|string|max:20',
-            'image_url' => 'required|url|max:2048',
+            // URL gambar penuh, atau path lokal di folder public (misalnya images/penjahit/foto.jpg)
+            'image_url' => ['required', 'string', 'max:2048', 'regex:/^(https?:\/\/|images\/)/'],
             'lat' => 'required|numeric|between:-90,90',
             'lng' => 'required|numeric|between:-180,180',
             'opening_hours_start' => 'required|date_format:H:i',
@@ -65,5 +70,11 @@ class LocationController extends Controller
         unset($validated['opening_hours_start'], $validated['opening_hours_end']);
 
         return $validated;
+    }
+
+    /** Ambil jam buka & tutup dari kolom opening_hours ("08:00 - 17:00") */
+    private function openingRange(array $data): array
+    {
+        return array_map('trim', explode('-', $data['opening_hours'], 2));
     }
 }

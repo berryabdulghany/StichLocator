@@ -40,7 +40,7 @@ locations.forEach(function(location) {
     marker.on('click', function() {
         var item = document.getElementById('location-item-' + location.id);
         showDetailsAndFly(item, location.id, location.name, location.address, location.telepon,
-                          location.rating, location.reviews_count, location.status, location.image_url,
+                          location.rating, location.reviews_count, location.status, location.cover_url,
                           location.lat, location.lng, location.opening_hours);
     });
 
