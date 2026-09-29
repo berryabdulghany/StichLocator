@@ -43,6 +43,6 @@ class LocaleTest extends TestCase
             ->assertRedirect(url('/profile'));
 
         $this->get('/lang/en', ['referer' => 'https://situs-jahat.test/phishing'])
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('home'));
     }
 }
