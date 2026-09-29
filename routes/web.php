@@ -64,6 +64,12 @@ Route::middleware('auth')->group(function () {
         ->name('submit-review');
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('user.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
+    Route::put('/profile/password', [AuthController::class, 'updatePassword'])
+        ->middleware('throttle:6,1')
+        ->name('user.password.update');
+
+    // Pengguna menghapus ulasannya sendiri (dari halaman profil)
+    Route::delete('/ulasan/{review}', [ReviewController::class, 'destroyOwn'])->name('reviews.destroy-own');
 });
 
 /*

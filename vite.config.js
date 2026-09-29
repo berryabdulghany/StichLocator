@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/explorer.js',
                 'resources/js/penjahit.js',
+                'resources/js/profile.js',
             ],
             refresh: true,
         }),

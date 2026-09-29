@@ -164,6 +164,21 @@ class ReviewController extends Controller
     }
 
     /**
+     * Pengguna menghapus ulasannya sendiri dari halaman profil.
+     */
+    public function destroyOwn(Review $review)
+    {
+        // Hanya pemilik ulasan yang boleh menghapus
+        abort_unless($review->user_id === Auth::id(), 403);
+
+        $locationId = $review->location_id;
+        $review->delete();
+        $this->updateLocationAverageRating($locationId);
+
+        return redirect()->to(route('user.profile') . '#ulasan')->with('status', __('Review deleted.'));
+    }
+
+    /**
      * Aturan validasi tag cepat ulasan (App\Enums\ReviewTag)
      */
     private function tagRules(): array

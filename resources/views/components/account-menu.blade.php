@@ -14,7 +14,13 @@
                 <p class="font-semibold text-stone-800">{{ Auth::user()->name }}</p>
                 <p class="truncate text-xs text-stone-500">{{ Auth::user()->email }}</p>
             </div>
-            <a href="{{ route('user.profile') }}" class="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-stone-700 hover:bg-stone-50">
+            <a href="{{ route('user.profile') }}#ulasan" class="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-stone-700 hover:bg-stone-50">
+                <i class="ti ti-message-circle" aria-hidden="true"></i>{{ __('My reviews') }}
+            </a>
+            <a href="{{ route('user.profile') }}#tersimpan" class="flex items-center gap-2 rounded-lg px-3 py-2 text-stone-700 hover:bg-stone-50">
+                <i class="ti ti-bookmark" aria-hidden="true"></i>{{ __('Saved') }}
+            </a>
+            <a href="{{ route('user.profile') }}#pengaturan" class="flex items-center gap-2 rounded-lg px-3 py-2 text-stone-700 hover:bg-stone-50">
                 <i class="ti ti-settings" aria-hidden="true"></i>{{ __('Manage your account') }}
             </a>
             <form action="{{ route('logout') }}" method="POST">
