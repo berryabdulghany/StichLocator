@@ -64,7 +64,7 @@ class DatabaseSeeder extends Seeder
                 'opening_hours' => $data['hours']['summary'],
                 'status' => null,
                 'rating' => null,
-                'reviews' => 0,
+                'review_count' => 0,
             ]);
 
             foreach ($data['services'] as $order => [$category, $name, $price, $minDays, $maxDays]) {
@@ -108,10 +108,7 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            $location->update([
-                'rating' => round($location->reviews()->avg('rating'), 1),
-                'reviews' => $location->reviews()->count(),
-            ]);
+            $location->refreshRatingStats();
         }
     }
 

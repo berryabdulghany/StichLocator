@@ -17,12 +17,13 @@ class Location extends Model
     public const TIMEZONE = 'Asia/Jakarta';
 
     protected $fillable = [
-        'name', 'slug', 'address', 'description', 'telepon', 'offers_home_visit', 'rating', 'reviews',
+        'name', 'slug', 'address', 'description', 'telepon', 'offers_home_visit', 'rating', 'review_count',
         'status', 'image_url', 'lat', 'lng', 'opening_hours',
     ];
 
     protected $casts = [
         'offers_home_visit' => 'boolean',
+        'review_count' => 'integer',
         'lat' => 'float',
         'lng' => 'float',
     ];
@@ -134,9 +135,7 @@ class Location extends Model
     {
         $counts = [];
 
-        // Catatan: $this->reviews adalah kolom jumlah ulasan (integer), bukan relasi,
-        // jadi relasi diambil secara eksplisit.
-        $reviews = $this->relationLoaded('reviews') ? $this->getRelation('reviews') : $this->reviews()->get();
+        $reviews = $this->relationLoaded('reviews') ? $this->reviews : $this->reviews()->get();
 
         foreach ($reviews as $review) {
             foreach ($review->tags ?? [] as $tag) {
@@ -258,6 +257,20 @@ class Location extends Model
         };
 
         return __('Closed') . ' · ' . $when;
+    }
+
+    /**
+     * Hitung ulang rating rata-rata & jumlah ulasan dari tabel reviews.
+     * Dipanggil setiap ulasan ditambah, diubah, atau dihapus.
+     */
+    public function refreshRatingStats(): void
+    {
+        $stats = $this->reviews()->selectRaw('AVG(rating) as average, COUNT(*) as total')->first();
+
+        $this->forceFill([
+            'rating' => $stats->total ? round((float) $stats->average, 1) : null,
+            'review_count' => (int) $stats->total,
+        ])->save();
     }
 
     /**
