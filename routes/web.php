@@ -7,9 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
-use App\Http\Controllers\AdminAuthController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\PenjahitController;
 use App\Http\Controllers\RouteController;
 
@@ -77,44 +75,48 @@ Route::middleware('auth')->group(function () {
 | Admin
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->group(function () {
-    Route::get('/', function () {
-        return auth('admin')->check()
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('admin.login');
-    });
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', fn () => auth('admin')->check()
+        ? redirect()->route('admin.dashboard')
+        : redirect()->route('admin.login'))->name('home');
 
     Route::middleware('guest:admin')->group(function () {
-        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-        Route::post('/login', [AdminAuthController::class, 'login'])
+        Route::get('/login', [Admin\AuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [Admin\AuthController::class, 'login'])
             ->middleware('throttle:5,1')
-            ->name('admin.login.submit');
-        // Registrasi admin hanya terbuka selama belum ada admin sama sekali (dicek di controller)
-        Route::get('/register', [AdminAuthController::class, 'showRegisterForm'])->name('admin.register');
-        Route::post('/register', [AdminAuthController::class, 'register'])
+            ->name('login.submit');
+
+        // Registrasi publik hanya untuk admin pertama (dicek di controller)
+        Route::get('/register', [Admin\AuthController::class, 'showRegisterForm'])->name('register');
+        Route::post('/register', [Admin\AuthController::class, 'register'])
             ->middleware('throttle:5,1')
-            ->name('admin.register.submit');
+            ->name('register.submit');
     });
 
     Route::middleware('auth:admin')->group(function () {
-        Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+        Route::post('/logout', [Admin\AuthController::class, 'logout'])->name('logout');
 
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-        Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
-        Route::get('/datapenjahit', [LocationController::class, 'index'])->name('datapenjahit');
-        Route::get('/rating_review', [ReviewController::class, 'index'])->name('rating_review');
+        Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
-        // CRUD data penjahit
-        Route::post('/penjahit', [LocationController::class, 'store'])->name('penjahit.store');
-        Route::put('/penjahit/{id}', [LocationController::class, 'update'])->name('penjahit.update');
-        Route::delete('/penjahit/{id}', [LocationController::class, 'destroy'])->name('penjahit.destroy');
+        // Penjahit: /admin/penjahit, /admin/penjahit/create, /admin/penjahit/{id}/edit, ...
+        Route::resource('penjahit', Admin\TailorController::class)
+            ->except('show')
+            ->parameters(['penjahit' => 'tailor'])
+            ->names('tailors');
 
-        // Endpoint JSON untuk halaman Rating & Review
-        Route::get('/api/locations', [LocationController::class, 'getLocations']);
-        Route::get('/api/reviews', [ReviewController::class, 'index']);
-        Route::post('/api/reviews', [ReviewController::class, 'store']);
-        Route::get('/api/reviews/{id}', [ReviewController::class, 'show']);
-        Route::put('/api/reviews/{id}', [ReviewController::class, 'update']);
-        Route::delete('/api/reviews/{id}', [ReviewController::class, 'destroy']);
+        // Ulasan (moderasi)
+        Route::get('/ulasan', [Admin\ReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/ulasan/{review}/edit', [Admin\ReviewController::class, 'edit'])->name('reviews.edit');
+        Route::put('/ulasan/{review}', [Admin\ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('/ulasan/{review}', [Admin\ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+        // Pengguna
+        Route::get('/pengguna', [Admin\UserController::class, 'index'])->name('users.index');
+        Route::delete('/pengguna/{user}', [Admin\UserController::class, 'destroy'])->name('users.destroy');
+
+        // Akun admin
+        Route::get('/admin', [Admin\AdminAccountController::class, 'index'])->name('admins.index');
+        Route::post('/admin', [Admin\AdminAccountController::class, 'store'])->name('admins.store');
+        Route::delete('/admin/{admin}', [Admin\AdminAccountController::class, 'destroy'])->name('admins.destroy');
     });
 });
