@@ -61,6 +61,7 @@ const el = {
     toast: document.getElementById('toast'),
     savedCount: document.getElementById('saved-count'),
     boundsControl: document.getElementById('bounds-control'),
+    pickLocation: document.getElementById('pick-location'),
 };
 
 /*
@@ -91,7 +92,15 @@ tailors.forEach((tailor) => {
     markers.set(tailor.id, marker);
 });
 
-map.on('click', hidePreview);
+map.on('click', (event) => {
+    if (pickingLocation) {
+        stopPickingLocation();
+        setUserLocation({ lat: event.latlng.lat, lng: event.latlng.lng }, { manual: true });
+        showToast(tr('Location updated.'), 2500);
+        return;
+    }
+    hidePreview();
+});
 map.on('moveend', () => state.inBounds && renderList());
 
 /*
@@ -504,11 +513,11 @@ el.list.addEventListener('mouseout', (event) => {
 */
 
 let toastTimer;
-function showToast(message) {
+function showToast(message, duration = 4500) {
     el.toast.textContent = message;
     el.toast.classList.remove('hidden');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.toast.classList.add('hidden'), 4500);
+    toastTimer = setTimeout(() => el.toast.classList.add('hidden'), duration);
 }
 
 /*
@@ -518,8 +527,13 @@ function showToast(message) {
 */
 
 let userMarker = null;
+let accuracyCircle = null;
 let radiusCircle = null;
 let radiusLabel = null;
+
+// Lokasi dari browser di laptop/PC (tanpa GPS) ditebak dari Wi-Fi/IP dan bisa meleset beberapa km.
+// Di atas batas ini, tampilkan lingkaran akurasi dan ajak pengguna menggeser titik biru.
+const POOR_ACCURACY_M = 500;
 
 // Tombol "Lokasi saya" sebagai kontrol Leaflet (ditumpuk di atas tombol zoom)
 const LocateControl = L.Control.extend({
@@ -553,7 +567,10 @@ function locateUser() {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 button.classList.remove('is-loading');
-                setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+                setUserLocation(
+                    { lat: position.coords.latitude, lng: position.coords.longitude },
+                    { accuracy: position.coords.accuracy },
+                );
                 resolve(true);
             },
             (error) => {
@@ -563,12 +580,18 @@ function locateUser() {
                     : tr('Could not find your location. Please try again.'));
                 resolve(false);
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
         );
     });
 }
 
-function setUserLocation(location) {
+/**
+ * @param {{ lat: number, lng: number }} location
+ * @param {{ accuracy?: number|null, manual?: boolean }} options
+ *   accuracy: perkiraan akurasi dari browser (meter)
+ *   manual  : lokasi dikoreksi pengguna dengan menggeser titik biru (radius yang dipilih dipertahankan)
+ */
+function setUserLocation(location, { accuracy = null, manual = false } = {}) {
     state.location = location;
     el.toast.classList.add('hidden');
     tailors.forEach((tailor) => {
@@ -579,14 +602,44 @@ function setUserLocation(location) {
     if (userMarker) {
         userMarker.setLatLng(latLng);
     } else {
+        // Titik biru bisa digeser untuk mengoreksi lokasi yang meleset
         userMarker = L.marker(latLng, {
-            icon: L.divIcon({ className: '', iconSize: null, html: '<span class="sl-user-dot"></span>' }),
-            interactive: false,
+            icon: L.divIcon({ className: '', iconSize: null, html: '<span class="sl-user-dot is-draggable"></span>' }),
+            draggable: true,
+            autoPan: true,
             keyboard: false,
-            zIndexOffset: -1000,
+            title: tr('Your location. Drag to correct it.'),
+            zIndexOffset: 500,
         }).addTo(map);
+
+        userMarker.on('dragend', () => {
+            const position = userMarker.getLatLng();
+            setUserLocation({ lat: position.lat, lng: position.lng }, { manual: true });
+        });
     }
     locateControl.button.classList.add('is-active');
+
+    // Lingkaran akurasi (hanya untuk lokasi dari browser, bukan hasil geser manual)
+    accuracyCircle?.remove();
+    accuracyCircle = null;
+    if (!manual && accuracy > 50) {
+        accuracyCircle = L.circle(latLng, {
+            radius: accuracy,
+            stroke: false,
+            fillColor: '#185FA5',
+            fillOpacity: 0.08,
+            interactive: false,
+        }).addTo(map);
+    }
+
+    if (manual) {
+        // Pertahankan radius pilihan pengguna, geser lingkarannya (peta ikut menyesuaikan),
+        // dan hitung ulang rute jika sedang tampil
+        drawRadius();
+        applyFilters();
+        if (routeState) showRoute(routeState.id, routeState.mode);
+        return;
+    }
 
     // Aktifkan urutan "Terdekat"
     const nearestOption = el.sort.querySelector('option[value="distance"]');
@@ -603,7 +656,11 @@ function setUserLocation(location) {
     const radius = [2000, 5000, 10000].find((r) => countWithin(r) >= 3) ?? null;
     setRadius(radius, { apply: false });
 
-    if (radius === null) {
+    if (accuracy > POOR_ACCURACY_M) {
+        showToast(tr('Your browser location is approximate (±:distance). Drag the blue dot or use "Correct location" to fix it.', {
+            distance: formatDistance(accuracy),
+        }), 9000);
+    } else if (radius === null) {
         showToast(tr('No tailors near you yet. Showing all tailors sorted by distance.'));
     }
 
@@ -654,6 +711,32 @@ function drawRadius() {
 
 el.radiusButtons.forEach((button) => {
     button.addEventListener('click', () => setRadius(button.dataset.radius ? Number(button.dataset.radius) : null));
+});
+
+/*
+| Koreksi lokasi: alternatif menggeser titik biru (lebih mudah di HP) — ketuk peta di posisi yang benar.
+*/
+let pickingLocation = false;
+
+function startPickingLocation() {
+    pickingLocation = true;
+    map.getContainer().classList.add('is-picking');
+    setSheet(false);
+    hidePreview();
+    showToast(tr('Tap the map at your location.'), 10000);
+}
+
+function stopPickingLocation() {
+    pickingLocation = false;
+    map.getContainer().classList.remove('is-picking');
+}
+
+el.pickLocation.addEventListener('click', startPickingLocation);
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && pickingLocation) {
+        stopPickingLocation();
+        el.toast.classList.add('hidden');
+    }
 });
 
 /*

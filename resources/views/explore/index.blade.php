@@ -47,13 +47,17 @@
             </div>
 
             {{-- Radius "pita ukur", muncul setelah lokasi pengguna ditemukan --}}
-            <div id="radius-bar" class="hidden items-center gap-1.5 border-b border-dashed border-stitch px-4 py-2 text-xs">
+            <div id="radius-bar" class="hidden flex-wrap items-center gap-x-1.5 gap-y-2 border-b border-dashed border-stitch px-4 py-2 text-xs">
                 <i class="ti ti-ruler-measure text-base text-navy-700" aria-hidden="true"></i>
                 <span class="mr-1 font-medium text-stone-600">{{ __('Radius') }}</span>
                 @foreach ([1, 2, 5, 10] as $km)
                     <button type="button" class="chip px-2.5 py-1" data-radius="{{ $km * 1000 }}">{{ $km }} km</button>
                 @endforeach
                 <button type="button" class="chip px-2.5 py-1" data-radius="">{{ __('All') }}</button>
+                <button type="button" id="pick-location" class="ml-auto inline-flex items-center gap-1 whitespace-nowrap font-semibold text-navy-700 hover:underline"
+                        title="{{ __('Tap the map at your location.') }}">
+                    <i class="ti ti-map-pin" aria-hidden="true"></i>{{ __('Correct location') }}
+                </button>
             </div>
 
             <ul id="tailor-list" class="flex-1 space-y-1 overflow-y-auto p-2"></ul>

@@ -258,6 +258,14 @@
     @apply relative block h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-navy-600;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
+.sl-user-dot.is-draggable {
+    cursor: grab;
+}
+.sl-user-dot.is-draggable::before {
+    /* Area sentuh lebih besar supaya mudah digeser di HP */
+    content: '';
+    @apply absolute -inset-3 rounded-full;
+}
 .sl-user-dot::after {
     content: '';
     @apply absolute -inset-2 animate-ping rounded-full bg-navy-500/30;
@@ -279,4 +287,10 @@
 }
 .sl-locate.is-loading i {
     @apply animate-spin;
+}
+
+/* Mode "Koreksi lokasi": kursor bidik di atas peta */
+.leaflet-container.is-picking,
+.leaflet-container.is-picking .leaflet-interactive {
+    cursor: crosshair !important;
 }
