@@ -20,7 +20,7 @@ class ExplorePageTest extends TestCase
 
     public function test_explore_page_sends_tailor_summaries_to_javascript(): void
     {
-        $response = $this->get('/')->assertOk();
+        $response = $this->get('/peta')->assertOk();
 
         $tailors = $response->viewData('tailors');
         $this->assertCount(12, $tailors);
@@ -79,10 +79,10 @@ class ExplorePageTest extends TestCase
     public function test_explore_page_tells_javascript_whether_route_preview_is_available(): void
     {
         config(['services.openrouteservice.key' => null]);
-        $this->get('/')->assertSee('routingEnabled: false', false);
+        $this->get('/peta')->assertSee('routingEnabled: false', false);
 
         config(['services.openrouteservice.key' => 'rahasia-123']);
-        $this->get('/')
+        $this->get('/peta')
             ->assertSee('routingEnabled: true', false)
             ->assertDontSee('rahasia-123');
     }

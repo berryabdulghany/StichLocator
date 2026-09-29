@@ -20,6 +20,6 @@ class LocaleController extends Controller
         $referer = $request->headers->get('referer');
         $isInternal = $referer && str_starts_with($referer, $request->getSchemeAndHttpHost() . '/');
 
-        return redirect()->to($isInternal ? $referer : route('dashboard'));
+        return redirect()->to($isInternal ? $referer : route('home'));
     }
 }
