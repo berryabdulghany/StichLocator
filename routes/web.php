@@ -4,18 +4,23 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\PenjahitController;
 
 /*
 |--------------------------------------------------------------------------
 | Halaman publik
 |--------------------------------------------------------------------------
 */
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+// Halaman peta + katalog penjahit
+Route::get('/', [ExploreController::class, 'index'])->name('dashboard');
+
+// Detail penjahit (link yang bisa dibagikan), misalnya /penjahit/tailor-kebaya-bu-sri
+Route::get('/penjahit/{location:slug}', [PenjahitController::class, 'show'])->name('penjahit.show');
 
 // Ganti bahasa (ID | EN)
 Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');

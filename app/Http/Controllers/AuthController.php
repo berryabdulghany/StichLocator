@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use App\Models\Location; // Add this line
 
 class AuthController extends Controller
 {
@@ -63,8 +62,7 @@ class AuthController extends Controller
 
     public function showProfile()
     {
-        $locations = Location::all(); // Fetch locations
-        return view('pages.profile', compact('locations')); // Pass locations to the view
+        return view('pages.profile');
     }
 
     public function updateProfile(Request $request)
