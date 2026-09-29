@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Storage;
-
+use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
     // Tampilkan halaman register
     public function showRegisterForm()
     {
-        return view('login_register.register');
+        return view('login_register.register', ['quote' => $this->featuredReview()]);
     }
 
     // Proses register
@@ -39,7 +40,7 @@ class AuthController extends Controller
     // Tampilkan halaman login
     public function showLoginForm()
     {
-        return view('login_register.login');
+        return view('login_register.login', ['quote' => $this->featuredReview()]);
     }
 
     // Proses login
@@ -50,7 +51,7 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'))->with('success', __('Welcome back!'));
         }
@@ -60,39 +61,68 @@ class AuthController extends Controller
             ->onlyInput('email');
     }
 
+    /**
+     * Halaman profil: ringkasan akun, ulasan saya, penjahit tersimpan, dan pengaturan.
+     */
     public function showProfile()
     {
-        return view('pages.profile');
+        $user = Auth::user();
+
+        $reviews = $user->reviews()
+            ->with('location')
+            ->latest()
+            ->get();
+
+        $stats = [
+            'reviews' => $reviews->count(),
+            'average' => $reviews->count() ? round($reviews->avg('rating'), 1) : null,
+            'tailors' => $reviews->pluck('location_id')->filter()->unique()->count(),
+        ];
+
+        return view('pages.profile', compact('user', 'reviews', 'stats'));
     }
 
+    /**
+     * Ubah nama dan foto profil.
+     */
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'password' => 'nullable|string|min:8|confirmed',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user->name = $validated['name'];
 
         if ($request->hasFile('profile_picture')) {
-            // Delete old profile picture if exists
+            // Hapus foto lama jika ada
             if ($user->profile_picture) {
                 Storage::disk('public')->delete($user->profile_picture);
             }
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-            $user->profile_picture = $path;
-        }
-
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
+            $user->profile_picture = $request->file('profile_picture')->store('profile_pictures', 'public');
         }
 
         $user->save();
 
-        return back()->with('status', __('Profile updated.'));
+        return redirect()->to(route('user.profile') . '#pengaturan')->with('status', __('Profile updated.'));
+    }
+
+    /**
+     * Ubah password. Wajib memasukkan password saat ini supaya akun tidak bisa diambil alih
+     * oleh orang yang kebetulan memegang perangkat yang sedang login.
+     */
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::min(8), 'different:current_password'],
+        ]);
+
+        $request->user()->update(['password' => Hash::make($validated['password'])]);
+
+        return redirect()->to(route('user.profile') . '#pengaturan')->with('status', __('Password updated.'));
     }
 
     public function logout(Request $request)
@@ -101,5 +131,18 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('home')->with('success', __('You have been logged out.'));
+    }
+
+    /**
+     * Ulasan bintang 5 untuk ditampilkan di panel samping halaman login/register.
+     */
+    private function featuredReview(): ?Review
+    {
+        return Review::with(['user', 'location'])
+            ->where('rating', 5)
+            ->whereNotNull('user_id')
+            ->whereHas('location')
+            ->inRandomOrder()
+            ->first();
     }
 }
