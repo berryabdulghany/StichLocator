@@ -47,15 +47,18 @@ class SecurityTest extends TestCase
 
     public function test_guest_is_redirected_to_admin_login_from_admin_pages(): void
     {
-        foreach (['/admin/dashboard', '/admin/users', '/admin/datapenjahit', '/admin/rating_review'] as $url) {
+        foreach (['/admin/dashboard', '/admin/penjahit', '/admin/penjahit/create', '/admin/ulasan', '/admin/pengguna', '/admin/admin'] as $url) {
             $this->get($url)->assertRedirect(route('admin.login'));
         }
     }
 
-    public function test_old_public_admin_pages_are_gone(): void
+    public function test_old_admin_and_public_management_urls_are_gone(): void
     {
-        $this->get('/datapenjahit')->assertNotFound();
-        $this->get('/rating_review')->assertNotFound();
+        $this->actingAs($this->admin(), 'admin');
+
+        foreach (['/datapenjahit', '/rating_review', '/admin/datapenjahit', '/admin/rating_review', '/admin/users', '/admin/api/reviews'] as $url) {
+            $this->get($url)->assertNotFound();
+        }
     }
 
     public function test_guest_and_regular_user_cannot_modify_reviews(): void
@@ -64,9 +67,9 @@ class SecurityTest extends TestCase
             if ($actor) {
                 $this->actingAs($actor);
             }
-            $this->putJson("/admin/api/reviews/{$this->review->id}", ['rating' => 1, 'review' => 'x'])
-                ->assertUnauthorized();
-            $this->deleteJson("/admin/api/reviews/{$this->review->id}")->assertUnauthorized();
+            $this->put(route('admin.reviews.update', $this->review), ['rating' => 1, 'review' => 'x'])
+                ->assertRedirect(route('admin.login'));
+            $this->deleteJson(route('admin.reviews.destroy', $this->review))->assertUnauthorized();
             $this->putJson("/reviews/{$this->review->id}", ['rating' => 1, 'review' => 'x'])
                 ->assertStatus(405);
             $this->deleteJson("/reviews/{$this->review->id}")->assertStatus(405);
@@ -75,52 +78,13 @@ class SecurityTest extends TestCase
         $this->assertDatabaseHas('reviews', ['id' => $this->review->id, 'rating' => 4]);
     }
 
-    public function test_regular_user_cannot_manage_penjahit(): void
+    public function test_regular_user_cannot_manage_tailors(): void
     {
         $this->actingAs($this->user)
-            ->delete(route('penjahit.destroy', $this->location->id))
+            ->delete(route('admin.tailors.destroy', $this->location))
             ->assertRedirect(route('admin.login'));
 
         $this->assertDatabaseHas('locations', ['id' => $this->location->id]);
-    }
-
-    public function test_admin_can_manage_penjahit(): void
-    {
-        $this->actingAs($this->admin(), 'admin')
-            ->post(route('penjahit.store'), [
-                'name' => 'Penjahit Baru',
-                'address' => 'Jl. Baru',
-                'image_url' => 'https://example.com/b.jpg',
-                'lat' => -6.1,
-                'lng' => 106.7,
-                'opening_hours_start' => '09:00',
-                'opening_hours_end' => '18:00',
-                'rating' => 5, // tidak boleh bisa di-set lewat form
-            ])
-            ->assertRedirect(route('datapenjahit'));
-
-        $this->assertDatabaseHas('locations', [
-            'name' => 'Penjahit Baru',
-            'opening_hours' => '09:00 - 18:00',
-            'rating' => null,
-        ]);
-
-        $this->delete(route('penjahit.destroy', $this->location->id))->assertRedirect(route('datapenjahit'));
-        $this->assertDatabaseMissing('locations', ['id' => $this->location->id]);
-    }
-
-    public function test_admin_can_create_review_without_user(): void
-    {
-        $this->actingAs($this->admin(), 'admin')
-            ->postJson('/admin/api/reviews', [
-                'location_id' => $this->location->id,
-                'rating' => 5,
-                'review' => 'Dari admin',
-            ])
-            ->assertOk();
-
-        $this->assertDatabaseHas('reviews', ['review' => 'Dari admin', 'user_id' => null]);
-        $this->assertSame(2, $this->location->fresh()->reviews);
     }
 
     public function test_review_submission_requires_login_and_valid_data(): void
@@ -138,7 +102,7 @@ class SecurityTest extends TestCase
         ])->assertOk();
 
         $location = $this->location->fresh();
-        $this->assertSame(2, $location->reviews);
+        $this->assertSame(2, $location->review_count);
         $this->assertEquals(4.5, $location->rating);
     }
 

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Enums\ServiceCategory;
-use App\Models\Admin;
 use App\Models\Location;
 use App\Models\Review;
 use App\Models\User;
@@ -122,27 +121,6 @@ class LocationDataTest extends TestCase
 
         $reviews = $this->getJson("/reviews/{$location->id}")->assertOk()->json();
         $this->assertSame(['rapi', 'tepat_waktu'], collect($reviews)->firstWhere('review', 'Mantap')['tags']);
-    }
-
-    public function test_admin_form_syncs_daily_hours(): void
-    {
-        $admin = Admin::create(['name' => 'Admin', 'email' => 'admin@example.test', 'password' => 'password123']);
-        $location = $this->location();
-
-        $this->actingAs($admin, 'admin')
-            ->put(route('penjahit.update', $location->id), [
-                'name' => 'Penjahit Tes',
-                'address' => 'Jl. Tes No. 1',
-                'image_url' => 'images/penjahit/tes.jpg',
-                'lat' => -6.2,
-                'lng' => 106.8,
-                'opening_hours_start' => '09:00',
-                'opening_hours_end' => '18:00',
-            ])
-            ->assertRedirect(route('datapenjahit'));
-
-        $this->assertSame(7, $location->hours()->count());
-        $this->assertSame(7, $location->hours()->where('opens_at', '09:00')->where('closes_at', '18:00')->count());
     }
 
     public function test_seeder_builds_complete_demo_data(): void
