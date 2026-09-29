@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReviewTag;
 use App\Models\Review;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ReviewController extends Controller
 {
@@ -49,6 +51,7 @@ class ReviewController extends Controller
                     'id' => $review->id,
                     'rating' => $review->rating,
                     'review' => $review->review,
+                    'tags' => $review->tags ?? [],
                     'user_name' => $review->user ? $review->user->name : 'Anonymous',
                     'created_at' => $review->created_at->format('Y-m-d H:i:s')
                 ];
@@ -67,6 +70,7 @@ class ReviewController extends Controller
             'location_id' => 'required|exists:locations,id',
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|max:500',
+            ...$this->tagRules(),
         ]);
 
         $review = Review::create([
@@ -74,6 +78,7 @@ class ReviewController extends Controller
             'user_id' => Auth::guard('web')->id(),
             'rating' => $validated['rating'],
             'review' => $validated['review'],
+            'tags' => array_values(array_unique($validated['tags'] ?? [])),
         ]);
 
         $this->updateLocationAverageRating($validated['location_id']);
@@ -122,7 +127,12 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|max:500',
+            ...$this->tagRules(),
         ]);
+
+        if ($request->has('tags')) {
+            $validated['tags'] = array_values(array_unique($validated['tags'] ?? []));
+        }
 
         $review->update($validated);
 
@@ -151,6 +161,17 @@ class ReviewController extends Controller
             'success' => true,
             'message' => __('Review deleted.')
         ]);
+    }
+
+    /**
+     * Aturan validasi tag cepat ulasan (App\Enums\ReviewTag)
+     */
+    private function tagRules(): array
+    {
+        return [
+            'tags' => 'nullable|array|max:' . count(ReviewTag::cases()),
+            'tags.*' => ['string', Rule::enum(ReviewTag::class)],
+        ];
     }
 
     /**

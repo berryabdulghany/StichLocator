@@ -36,14 +36,14 @@
             @foreach ($locations as $location)
             <div id="location-item-{{ $location->id }}"
                  class="location-item p-3 rounded-lg hover:bg-stone-50 cursor-pointer border-l-4 border-transparent transition-all duration-200"
-                 onclick="showDetailsAndFly(this, {{ (int) $location->id }}, {{ Js::from($location->name) }}, {{ Js::from($location->address) }}, {{ Js::from($location->telepon) }}, {{ (float) ($location->rating ?? 0) }}, {{ (int) ($location->reviews_count ?? 0) }}, {{ Js::from($location->status) }}, {{ Js::from($location->image_url) }}, {{ (float) $location->lat }}, {{ (float) $location->lng }}, {{ Js::from($location->opening_hours) }})"
+                 onclick="showDetailsAndFly(this, {{ (int) $location->id }}, {{ Js::from($location->name) }}, {{ Js::from($location->address) }}, {{ Js::from($location->telepon) }}, {{ (float) ($location->rating ?? 0) }}, {{ (int) ($location->reviews_count ?? 0) }}, {{ Js::from($location->status) }}, {{ Js::from($location->cover_url) }}, {{ (float) $location->lat }}, {{ (float) $location->lng }}, {{ Js::from($location->opening_hours) }})"
                  data-name="{{ strtolower($location->name) }}"
                  data-address="{{ strtolower($location->address) }}"
                  data-rating="{{ $location->rating ?? 0 }}"
                  data-status="{{ $location->status }}">
 
                 <div class="flex items-start gap-4">
-                    <img src="{{ $location->image_url }}" alt="{{ $location->name }}" loading="lazy"
+                    <img src="{{ $location->cover_url }}" alt="{{ $location->name }}" loading="lazy"
                          onerror="this.onerror=null;this.src='https://placehold.co/200x200/E3ECF7/0C447C?text=StichLocator'"
                          class="w-20 h-20 rounded-lg object-cover bg-navy-50">
                     <div class="flex-grow min-w-0">

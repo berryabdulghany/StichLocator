@@ -13,7 +13,12 @@ class Review extends Model
         'user_id',
         'location_id',
         'rating',
-        'review'
+        'review',
+        'tags',
+    ];
+
+    protected $casts = [
+        'tags' => 'array',
     ];
 
     public function user()
