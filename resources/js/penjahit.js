@@ -2,6 +2,7 @@
 import L from './lib/leaflet';
 import { createBaseMap, pinIcon } from './lib/map';
 import { initDetail } from './detail';
+import { initTracking } from './lib/track';
 
 const mini = document.getElementById('mini-map');
 
@@ -17,3 +18,4 @@ if (mini) {
 }
 
 initDetail(document);
+initTracking();

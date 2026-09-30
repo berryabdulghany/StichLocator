@@ -14,12 +14,20 @@
         'login' => ['login', 'bg-stone-100 text-stone-600'],
         'logout' => ['logout', 'bg-stone-100 text-stone-600'],
         'password' => ['lock', 'bg-stone-100 text-stone-600'],
+        'invited' => ['link', 'bg-navy-50 text-navy-700'],
+        'revoked' => ['user-x', 'bg-red-50 text-red-700'],
+        'joined' => ['user-check', 'bg-emerald-50 text-emerald-700'],
+        'replied' => ['message-reply', 'bg-navy-50 text-navy-700'],
+        'closed' => ['calendar-off', 'bg-amber-50 text-amber-800'],
+        'reopened' => ['door-enter', 'bg-emerald-50 text-emerald-700'],
     ];
     $actionLabels = [
         'created' => __('Created'), 'updated' => __('Updated'), 'deleted' => __('Moved to trash'),
         'restored' => __('Restored'), 'force_deleted' => __('Permanently deleted'), 'published' => __('Published'),
         'unpublished' => __('Unpublished'), 'dismissed' => __('Reports dismissed'), 'exported' => __('Exported'),
         'login' => __('Logged in'), 'logout' => __('Logged out'), 'password' => __('Password changed'),
+        'invited' => __('Partner invited'), 'revoked' => __('Partner access revoked'), 'joined' => __('Partner joined'),
+        'replied' => __('Review replied'), 'closed' => __('Temporarily closed'), 'reopened' => __('Reopened'),
     ];
 @endphp
 
@@ -53,7 +61,12 @@
                 <div class="min-w-0 flex-1">
                     <p class="text-sm text-stone-800">{{ $log->message() }}</p>
                     <p class="mt-0.5 text-xs text-stone-500">
-                        <span class="font-medium text-stone-600">{{ $log->admin->name ?? __('Deleted admin') }}</span>
+                        @if ($log->tailor_account_id)
+                            <span class="font-medium text-stone-600">{{ $log->tailorAccount->name ?? __('Deleted partner') }}</span>
+                            <span class="badge bg-emerald-50 px-1.5 py-0 text-[10px] text-emerald-700">{{ __('Partner') }}{{ $log->tailorAccount?->location ? ' · ' . $log->tailorAccount->location->name : '' }}</span>
+                        @else
+                            <span class="font-medium text-stone-600">{{ $log->admin->name ?? __('Deleted admin') }}</span>
+                        @endif
                         · <time datetime="{{ $log->created_at->toIso8601String() }}" title="{{ $log->created_at->translatedFormat('j M Y, H:i') }}">{{ $log->created_at->diffForHumans() }}</time>
                     </p>
                 </div>

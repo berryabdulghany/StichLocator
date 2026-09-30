@@ -7,8 +7,10 @@ use App\Enums\ServiceCategory;
 use App\Models\Admin;
 use App\Models\Location;
 use App\Models\Review;
+use App\Models\TailorAccount;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -19,6 +21,7 @@ class DatabaseSeeder extends Seeder
      * Akun untuk development lokal:
      *   User  : user@stichlocator.test  / password123
      *   Admin : admin@stichlocator.test / password123
+     *   Mitra : penjahit@stichlocator.test / password123 (mengelola "Penjahit Pak Budi")
      *
      * Nomor telepon memakai awalan 0800 (nomor bebas pulsa, bukan nomor HP)
      * agar tombol WhatsApp di data demo tidak mengarah ke orang sungguhan.
@@ -110,6 +113,41 @@ class DatabaseSeeder extends Seeder
 
             $location->refreshRatingStats();
         }
+
+        $this->seedPartner(Location::where('name', 'Penjahit Pak Budi')->firstOrFail());
+    }
+
+    /**
+     * Akun mitra demo + statistik 30 hari + satu balasan ulasan,
+     * supaya dasbor mitra langsung terlihat berisi saat dicoba.
+     */
+    private function seedPartner(Location $location): void
+    {
+        TailorAccount::create([
+            'location_id' => $location->id,
+            'name' => 'Pak Budi',
+            'email' => 'penjahit@stichlocator.test',
+            'password' => 'password123', // di-hash oleh cast 'hashed'
+        ]);
+
+        $rows = [];
+        for ($daysAgo = 29; $daysAgo >= 0; $daysAgo--) {
+            $date = now(Location::TIMEZONE)->subDays($daysAgo);
+            $views = 6 + ($daysAgo * 7) % 11 + ($date->isWeekend() ? 6 : 0);
+            $rows[] = [
+                'location_id' => $location->id,
+                'date' => $date->toDateString(),
+                'views' => $views,
+                'whatsapp_clicks' => intdiv($views, 4) + $daysAgo % 2,
+                'route_clicks' => intdiv($views, 6),
+            ];
+        }
+        DB::table('location_daily_stats')->insert($rows);
+
+        $location->reviews()->where('review', 'like', '%kemeja%')->first()?->update([
+            'reply' => 'Terima kasih banyak, senang kemejanya pas. Ditunggu pesanan berikutnya!',
+            'replied_at' => now()->subDay(),
+        ]);
     }
 
     /*

@@ -20,10 +20,13 @@ class Review extends Model
         'rating',
         'review',
         'tags',
+        'reply',
+        'replied_at',
     ];
 
     protected $casts = [
         'tags' => 'array',
+        'replied_at' => 'datetime',
     ];
 
     public function user()

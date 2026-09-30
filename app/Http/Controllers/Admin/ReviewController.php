@@ -52,12 +52,17 @@ class ReviewController extends Controller
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'review' => ['required', 'string', 'max:500'],
             ...PublicReviewController::tagRules(),
+            'reply' => ['nullable', 'string', 'max:500'],
         ]);
+
+        $reply = filled($validated['reply'] ?? null) ? $validated['reply'] : null;
 
         $review->update([
             'rating' => $validated['rating'],
             'review' => $validated['review'],
             'tags' => array_values(array_unique($validated['tags'] ?? [])),
+            'reply' => $reply,
+            'replied_at' => $reply === null ? null : ($reply === $review->reply ? $review->replied_at : now()),
         ]);
         $review->location?->refreshRatingStats();
 

@@ -32,6 +32,8 @@ class ReviewController extends Controller
                 'tags' => $review->tags ?? [],
                 'user_name' => $review->user?->name ?? 'Anonymous',
                 'created_at' => $review->created_at->format('Y-m-d H:i:s'),
+                'reply' => $review->reply,
+                'replied_at' => $review->replied_at?->format('Y-m-d H:i:s'),
             ]);
 
         return response()->json($reviews);

@@ -19,13 +19,25 @@
          data-share-title="{{ $location->name }}">
 
     @unless ($location->is_published)
-        {{-- Hanya admin yang bisa melihat draf (lihat PenjahitController@show) --}}
+        {{-- Hanya admin & mitra pemiliknya yang bisa melihat draf (lihat PenjahitController@show) --}}
         <div class="flex items-center gap-2 bg-amber-50 px-4 py-2.5 text-sm text-amber-900" role="note">
             <i class="ti ti-eye-off" aria-hidden="true"></i>
             <span>{{ __('Draft preview: this tailor is not visible to visitors yet.') }}</span>
-            <a href="{{ route('admin.tailors.edit', $location) }}" class="ml-auto font-semibold underline">{{ __('Edit') }}</a>
+            <a href="{{ ($isOwner ?? false) ? route('mitra.profile.edit') : route('admin.tailors.edit', $location) }}" class="ml-auto font-semibold underline">{{ __('Edit') }}</a>
         </div>
     @endunless
+
+    @if ($location->isTemporarilyClosed())
+        <div class="flex items-start gap-2 border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-900" role="note">
+            <i class="ti ti-calendar-off mt-0.5 text-lg" aria-hidden="true"></i>
+            <div>
+                <p class="font-semibold">{{ __('Temporarily closed until :date', ['date' => $location->closed_until->translatedFormat('l, j F Y')]) }}</p>
+                @if ($location->closure_note)
+                    <p class="text-amber-800">{{ $location->closure_note }}</p>
+                @endif
+            </div>
+        </div>
+    @endif
 
     {{-- Kolase foto --}}
     @if ($photos->isNotEmpty())
@@ -70,13 +82,14 @@
     {{-- Aksi: WhatsApp sebagai tombol utama --}}
     <div class="flex gap-2 px-5 py-4">
         @if ($wa = $location->whatsappUrl($location->whatsappGreeting()))
-            <a href="{{ $wa }}" target="_blank" rel="noopener" class="btn-accent flex-1">
+            <a href="{{ $wa }}" target="_blank" rel="noopener" class="btn-accent flex-1"
+               data-track="whatsapp" data-track-url="{{ route('penjahit.track', $location->id) }}">
                 <i class="ti ti-brand-whatsapp text-lg" aria-hidden="true"></i>{{ __('Chat on WhatsApp') }}
             </a>
         @endif
         {{-- Di halaman peta, klik ini menampilkan pratinjau rute; tanpa JS langsung membuka Google Maps --}}
         <a href="https://www.google.com/maps/dir/?api=1&destination={{ $location->lat }},{{ $location->lng }}" target="_blank" rel="noopener"
-           data-route data-id="{{ $location->id }}"
+           data-route data-id="{{ $location->id }}" data-track="route" data-track-url="{{ route('penjahit.track', $location->id) }}"
            class="btn-icon" title="{{ __('Route') }}" aria-label="{{ __('Route') }}">
             <i class="ti ti-route" aria-hidden="true"></i>
         </a>
@@ -184,6 +197,16 @@
                             <span class="text-stone-400">· {{ $review->created_at->diffForHumans() }}</span>
                         </div>
                         <p class="mt-1 text-sm text-stone-700">{{ $review->review }}</p>
+
+                        @if ($review->reply)
+                            <div class="mt-2 rounded-lg bg-stone-50 px-3 py-2">
+                                <p class="flex items-center gap-1 text-xs font-semibold text-navy-800">
+                                    <i class="ti ti-corner-down-right" aria-hidden="true"></i>{{ __('Reply from the tailor') }}
+                                    <span class="font-normal text-stone-400">· {{ $review->replied_at?->diffForHumans() }}</span>
+                                </p>
+                                <p class="mt-0.5 whitespace-pre-line text-sm text-stone-600">{{ $review->reply }}</p>
+                            </div>
+                        @endif
 
                         @auth
                             @if ($review->user_id !== auth()->id())

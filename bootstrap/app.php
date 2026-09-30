@@ -17,15 +17,23 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
         ]);
 
-        // Tamu yang membuka halaman admin diarahkan ke login admin, bukan login pengguna
-        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin', 'admin/*')
-            ? route('admin.login')
-            : route('login'));
+        $middleware->alias([
+            'tailor.active' => \App\Http\Middleware\EnsureTailorIsActive::class,
+        ]);
 
-        // Yang sudah login dan membuka halaman login/register diarahkan ke dashboard masing-masing
-        $middleware->redirectUsersTo(fn (Request $request) => $request->is('admin', 'admin/*')
-            ? route('admin.dashboard')
-            : route('home'));
+        // Tamu yang membuka halaman admin/mitra diarahkan ke halaman login masing-masing
+        $middleware->redirectGuestsTo(fn (Request $request) => match (true) {
+            $request->is('admin', 'admin/*') => route('admin.login'),
+            $request->is('mitra', 'mitra/*') => route('mitra.login'),
+            default => route('login'),
+        });
+
+        // Yang sudah login dan membuka halaman login/register diarahkan ke dasbor masing-masing
+        $middleware->redirectUsersTo(fn (Request $request) => match (true) {
+            $request->is('admin', 'admin/*') => route('admin.dashboard'),
+            $request->is('mitra', 'mitra/*') => route('mitra.dashboard'),
+            default => route('home'),
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

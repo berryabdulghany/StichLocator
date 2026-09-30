@@ -10,6 +10,9 @@ import { createBaseMap, pinIcon } from './lib/map';
 import { initDetail } from './detail';
 import { distanceMeters, formatDistance, formatDuration, pointOnCircle } from './lib/geo';
 import { getSavedIds, onSavedChange } from './lib/saved';
+import { initTracking } from './lib/track';
+
+initTracking();
 
 const tr = window.t;
 const escapeHtml = window.escapeHtml;
@@ -347,7 +350,7 @@ function showPreview(id) {
             </div>
         </div>
         <div class="mt-2 grid grid-cols-2 gap-2">
-            ${tailor.whatsapp_url ? `<a href="${escapeHtml(tailor.whatsapp_url)}" target="_blank" rel="noopener" class="btn-accent py-1.5"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i>${escapeHtml(tr('Chat'))}</a>` : ''}
+            ${tailor.whatsapp_url ? `<a href="${escapeHtml(tailor.whatsapp_url)}" target="_blank" rel="noopener" data-track="whatsapp" data-track-url="${escapeHtml(tailor.track_url)}" class="btn-accent py-1.5"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i>${escapeHtml(tr('Chat'))}</a>` : ''}
             <button type="button" data-open-detail class="btn-outline py-1.5">${escapeHtml(tr('Details'))}</button>
         </div>`;
     el.preview.classList.remove('hidden');
@@ -891,7 +894,7 @@ function renderRouteCard(tailor, mode, { loading = false, error = null, distance
             </div>` : ''}
         ${summary}
         <div class="mt-3 flex gap-2">
-            <a href="${escapeHtml(googleDirectionsUrl(tailor, mode))}" target="_blank" rel="noopener" class="btn-primary flex-1">
+            <a href="${escapeHtml(googleDirectionsUrl(tailor, mode))}" target="_blank" rel="noopener" data-track="route" data-track-url="${escapeHtml(tailor.track_url)}" class="btn-primary flex-1">
                 <i class="ti ti-navigation" aria-hidden="true"></i>${escapeHtml(tr('Start navigation in Google Maps'))}
             </a>
             <button type="button" data-route-detail class="btn-outline">${escapeHtml(tr('Details'))}</button>

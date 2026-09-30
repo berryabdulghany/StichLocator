@@ -12,6 +12,7 @@ class ActivityLogController extends Controller
     public const ACTIONS = [
         'created', 'updated', 'deleted', 'restored', 'force_deleted', 'published', 'unpublished',
         'dismissed', 'exported', 'login', 'logout', 'password',
+        'invited', 'revoked', 'joined', 'replied', 'closed', 'reopened',
     ];
 
     public function index(Request $request)
@@ -21,7 +22,7 @@ class ActivityLogController extends Controller
             'action' => in_array($request->query('action'), self::ACTIONS, true) ? $request->query('action') : null,
         ];
 
-        $logs = ActivityLog::with('admin')
+        $logs = ActivityLog::with(['admin', 'tailorAccount.location'])
             ->when($filters['admin'], fn ($query, $admin) => $query->where('admin_id', $admin))
             ->when($filters['action'], fn ($query, $action) => $query->where('action', $action))
             ->latest('created_at')

@@ -7,13 +7,13 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Validasi form tambah/edit penjahit di panel admin.
+ * Validasi form profil penjahit, dipakai panel admin (tambah/edit) dan panel mitra (edit profil sendiri).
  */
 class TailorRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth('admin')->check();
+        return $this->routeIs('mitra.*') ? auth('tailor')->check() : auth('admin')->check();
     }
 
     protected function prepareForValidation(): void
@@ -44,6 +44,10 @@ class TailorRequest extends FormRequest
             'is_published' => ['boolean'],
             'lat' => ['required', 'numeric', 'between:-90,90'],
             'lng' => ['required', 'numeric', 'between:-180,180'],
+
+            // Libur sementara (kosongkan tanggal untuk buka seperti biasa)
+            'closed_until' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:today', 'before_or_equal:' . now()->addYear()->toDateString()],
+            'closure_note' => ['nullable', 'string', 'max:120'],
 
             // Foto dikompres di server (ImageOptimizer), jadi foto langsung dari HP boleh diunggah.
             // Batas total per kiriman mengikuti post_max_size PHP (40 MB): sampul + 5 foto x 6 MB.
@@ -92,6 +96,8 @@ class TailorRequest extends FormRequest
             'services.*.duration_max_days' => __('maximum days'),
             'photos.*' => __('photo'),
             'photo_credit.*' => __('photo credit'),
+            'closed_until' => __('closed until'),
+            'closure_note' => __('closure note'),
         ];
     }
 }

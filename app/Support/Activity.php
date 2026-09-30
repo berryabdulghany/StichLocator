@@ -7,11 +7,13 @@ use App\Models\Admin;
 use App\Models\Location;
 use App\Models\Review;
 use App\Models\ReviewReport;
+use App\Models\TailorAccount;
+use App\Models\TailorInvitation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Pencatat log aktivitas admin.
+ * Pencatat log aktivitas admin & mitra penjahit.
  *
  * Contoh: Activity::log('updated', $tailor, 'Updated tailor :name', ['name' => $tailor->name]);
  * description memakai kunci terjemahan (bahasa Inggris) agar log tampil sesuai bahasa yang dipilih.
@@ -24,12 +26,18 @@ class Activity
         User::class => 'user',
         Admin::class => 'admin',
         ReviewReport::class => 'report',
+        TailorAccount::class => 'tailor_account',
+        TailorInvitation::class => 'invitation',
     ];
 
     public static function log(string $action, ?Model $subject, string $description, array $properties = []): ActivityLog
     {
+        // Di panel mitra (/mitra/*) pelakunya mitra penjahit, selain itu admin
+        $byTailor = request()->routeIs('mitra.*');
+
         return ActivityLog::create([
-            'admin_id' => auth('admin')->id(),
+            'admin_id' => $byTailor ? null : auth('admin')->id(),
+            'tailor_account_id' => $byTailor ? auth('tailor')->id() : null,
             'action' => $action,
             'subject_type' => $subject ? (self::SUBJECT_TYPES[$subject::class] ?? class_basename($subject)) : null,
             'subject_id' => $subject?->getKey(),
