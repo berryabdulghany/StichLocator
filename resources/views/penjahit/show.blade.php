@@ -27,7 +27,7 @@
                 <div class="p-4 text-sm text-stone-600">
                     <p class="flex items-start gap-1.5"><i class="ti ti-map-pin mt-0.5 text-navy-700" aria-hidden="true"></i>{{ $location->address }}</p>
                     <a href="https://www.google.com/maps/dir/?api=1&destination={{ $location->lat }},{{ $location->lng }}" target="_blank" rel="noopener"
-                       class="btn-outline mt-3 w-full"><i class="ti ti-route" aria-hidden="true"></i>{{ __('Get directions') }}</a>
+                       data-track="route" data-track-url="{{ route('penjahit.track', $location->id) }}" class="btn-outline mt-3 w-full"><i class="ti ti-route" aria-hidden="true"></i>{{ __('Get directions') }}</a>
                 </div>
             </div>
         </aside>

@@ -58,6 +58,12 @@
                 </div>
             </fieldset>
 
+            <div>
+                <label for="reply" class="label">{{ __('Reply from the tailor') }}</label>
+                <textarea name="reply" id="reply" rows="3" maxlength="500" class="input">{{ old('reply', $review->reply) }}</textarea>
+                <p class="mt-1 text-xs text-stone-500">{{ __('Written by the partner tailor. Empty it to remove an inappropriate reply.') }}</p>
+            </div>
+
             <div class="flex gap-2">
                 <button type="submit" class="btn-primary">{{ __('Save changes') }}</button>
                 <a href="{{ route('admin.reviews.index') }}" class="btn-ghost">{{ __('Cancel') }}</a>

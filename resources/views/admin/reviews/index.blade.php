@@ -70,6 +70,11 @@
                         <span class="text-xs text-stone-400">· {{ $review->created_at->translatedFormat('j M Y, H:i') }}</span>
                     </div>
                     <p class="mt-1.5 text-sm text-stone-700">{{ $review->review }}</p>
+                    @if ($review->reply)
+                        <p class="mt-2 border-l-2 border-navy-300 pl-2 text-sm text-stone-600">
+                            <span class="text-xs font-semibold text-navy-800">{{ __('Reply from the tailor') }}:</span> {{ $review->reply }}
+                        </p>
+                    @endif
                     @if ($review->tags)
                         <div class="mt-2 flex flex-wrap gap-1">
                             @foreach ($review->tags as $tag)

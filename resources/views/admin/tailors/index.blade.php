@@ -59,6 +59,11 @@
                                     <img src="{{ $tailor->cover_url }}" alt="" class="h-11 w-11 shrink-0 rounded-lg bg-navy-50 object-cover">
                                     <div class="min-w-0">
                                         <a href="{{ route('admin.tailors.edit', $tailor) }}" class="font-semibold text-stone-900 hover:text-navy-700">{{ $tailor->name }}</a>
+                                        @if ($tailor->account)
+                                            <span class="badge ml-1 bg-emerald-50 text-emerald-700" title="{{ __('Managed by :name', ['name' => $tailor->account->name]) }}">
+                                                <i class="ti ti-user-check" aria-hidden="true"></i>{{ __('Partner') }}
+                                            </span>
+                                        @endif
                                         <p class="max-w-xs truncate text-xs text-stone-500">{{ $tailor->address }}</p>
                                     </div>
                                 </div>

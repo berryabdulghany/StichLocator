@@ -14,7 +14,7 @@
                 <i class="ti ti-needle-thread" aria-hidden="true"></i>
             </span>
             <span class="font-bold">{{ config('app.name') }}</span>
-            <span class="rounded-md bg-terra-500 px-1.5 py-0.5 text-[10px] font-bold uppercase">Admin</span>
+            <span class="rounded-md bg-terra-500 px-1.5 py-0.5 text-[10px] font-bold uppercase">{{ $badge ?? 'Admin' }}</span>
         </a>
         <x-lang-switch />
     </div>

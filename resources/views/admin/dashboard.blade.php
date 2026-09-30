@@ -51,52 +51,12 @@
 
     <div class="mt-6 grid gap-6 xl:grid-cols-3">
         {{-- ============================== GRAFIK ULASAN HARIAN ============================== --}}
-        @php($max = max(1, $timeline->max('value')))
         <section class="card p-5 xl:col-span-2" aria-labelledby="chart-title">
             <div class="flex items-baseline justify-between gap-2">
                 <h2 id="chart-title" class="font-semibold text-stone-900">{{ __('Reviews per day, last 30 days') }}</h2>
                 <p class="text-sm text-stone-500">{{ __(':count total', ['count' => $timeline->sum('value')]) }}</p>
             </div>
-
-            <div class="mt-5 flex gap-2" aria-hidden="true">
-                {{-- Sumbu Y: hanya nilai maksimum dan nol --}}
-                <div class="flex h-48 flex-col justify-between py-0 text-right text-[11px] text-stone-400">
-                    <span>{{ $max }}</span>
-                    <span>0</span>
-                </div>
-                <div class="relative flex-1">
-                    <div class="absolute inset-x-0 top-0 border-t border-dashed border-stone-200"></div>
-                    <div class="absolute inset-x-0 top-1/2 border-t border-dashed border-stone-200"></div>
-                    <div class="relative flex h-48 items-end gap-[2px] border-b border-stone-300">
-                        @foreach ($timeline as $day)
-                            <div class="group relative flex h-full flex-1 items-end justify-center">
-                                <div class="w-full max-w-[14px] rounded-t bg-navy-600 transition group-hover:bg-navy-800"
-                                     style="height: {{ $day['value'] ? max(4, $day['value'] / $max * 100) : 0 }}%"></div>
-                                {{-- Tooltip --}}
-                                <div class="pointer-events-none absolute bottom-full z-10 mb-2 hidden whitespace-nowrap rounded-lg bg-stone-900 px-2 py-1 text-xs text-white shadow-lg group-hover:block">
-                                    {{ $day['label'] }}: <b class="font-semibold">{{ trans_choice(':count review|:count reviews', $day['value'], ['count' => $day['value']]) }}</b>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="mt-1.5 flex justify-between text-[11px] text-stone-400">
-                        <span>{{ $timeline->first()['label'] }}</span>
-                        <span>{{ $timeline[14]['label'] ?? '' }}</span>
-                        <span>{{ $timeline->last()['label'] }}</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Tabel alternatif untuk pembaca layar --}}
-            <table class="sr-only">
-                <caption>{{ __('Reviews per day, last 30 days') }}</caption>
-                <thead><tr><th scope="col">{{ __('Date') }}</th><th scope="col">{{ __('Reviews') }}</th></tr></thead>
-                <tbody>
-                    @foreach ($timeline as $day)
-                        <tr><td>{{ $day['label'] }}</td><td>{{ $day['value'] }}</td></tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <x-daily-bars class="mt-5" :days="$timeline" :caption="__('Reviews per day, last 30 days')" unit=":count review|:count reviews" />
         </section>
 
         {{-- ============================== DISTRIBUSI RATING ============================== --}}

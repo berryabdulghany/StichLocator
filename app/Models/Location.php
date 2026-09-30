@@ -24,7 +24,7 @@ class Location extends Model
 
     protected $fillable = [
         'name', 'slug', 'address', 'description', 'telepon', 'offers_home_visit', 'is_published', 'rating', 'review_count',
-        'status', 'image_url', 'lat', 'lng', 'opening_hours',
+        'status', 'image_url', 'lat', 'lng', 'opening_hours', 'closed_until', 'closure_note',
     ];
 
     protected $casts = [
@@ -33,6 +33,7 @@ class Location extends Model
         'review_count' => 'integer',
         'lat' => 'float',
         'lng' => 'float',
+        'closed_until' => 'date',
     ];
 
     protected $appends = ['cover_url'];
@@ -101,6 +102,17 @@ class Location extends Model
     public function photos()
     {
         return $this->hasMany(LocationPhoto::class)->orderBy('sort_order');
+    }
+
+    /** Akun mitra penjahit (jika sudah diundang & bergabung) */
+    public function account()
+    {
+        return $this->hasOne(TailorAccount::class);
+    }
+
+    public function invitations()
+    {
+        return $this->hasMany(TailorInvitation::class)->latest();
     }
 
     /*
@@ -215,6 +227,12 @@ class Location extends Model
     public function openingStatus(?Carbon $now = null): array
     {
         $now = ($now ?? now())->copy()->setTimezone(self::TIMEZONE);
+
+        // Libur sementara mengalahkan jadwal mingguan
+        if ($this->isTemporarilyClosed($now)) {
+            return ['open' => false, 'closes_at' => null, 'opens_at' => null, 'opens_in_days' => null];
+        }
+
         $week = $this->weeklyHours();
         $time = $now->format('H:i');
         $today = $now->dayOfWeek;
@@ -253,6 +271,18 @@ class Location extends Model
         return ['open' => false, 'closes_at' => null, 'opens_at' => null, 'opens_in_days' => null];
     }
 
+    /** Sedang libur sementara (sampai dan termasuk tanggal closed_until) */
+    public function isTemporarilyClosed(?Carbon $now = null): bool
+    {
+        if (! $this->closed_until) {
+            return false;
+        }
+
+        $today = ($now ?? now())->copy()->setTimezone(self::TIMEZONE)->toDateString();
+
+        return $today <= $this->closed_until->toDateString();
+    }
+
     public function isOpenNow(?Carbon $now = null): bool
     {
         return $this->openingStatus($now)['open'];
@@ -261,6 +291,10 @@ class Location extends Model
     /** Teks status singkat: "Buka · tutup 20.00", "Tutup · buka besok 08.00" */
     public function statusText(?Carbon $now = null): string
     {
+        if ($this->isTemporarilyClosed($now)) {
+            return __('Temporarily closed until :date', ['date' => $this->closed_until->translatedFormat('j M')]);
+        }
+
         $status = $this->openingStatus($now);
         $fmt = fn (string $time) => str_replace(':', '.', $time);
 
@@ -366,6 +400,7 @@ class Location extends Model
             'home_visit' => (bool) $this->offers_home_visit,
             'detail_url' => route('penjahit.show', $this->slug),
             'whatsapp_url' => $this->whatsappUrl($this->whatsappGreeting()),
+            'track_url' => route('penjahit.track', $this->id),
         ];
     }
 }

@@ -32,6 +32,52 @@ document.addEventListener('submit', (event) => {
 });
 
 /*
+| Tab (dasbor mitra): <section data-tabs> berisi [role=tab][data-tab] dan [role=tabpanel]
+*/
+document.querySelectorAll('[data-tabs]').forEach((root) => {
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const select = (tab) => {
+        tabs.forEach((other) => {
+            const selected = other === tab;
+            other.setAttribute('aria-selected', String(selected));
+            other.tabIndex = selected ? 0 : -1;
+            document.getElementById(other.getAttribute('aria-controls')).hidden = !selected;
+        });
+    };
+
+    tabs.forEach((tab, index) => {
+        tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+        tab.addEventListener('click', () => select(tab));
+        tab.addEventListener('keydown', (event) => {
+            const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+            if (!step) return;
+            event.preventDefault();
+            const next = tabs[(index + step + tabs.length) % tabs.length];
+            select(next);
+            next.focus();
+        });
+    });
+});
+
+/*
+| Salin link undangan mitra (halaman edit penjahit)
+*/
+document.querySelector('[data-copy-invite]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    const input = document.querySelector('[data-invite-input]');
+    const label = button.querySelector('[data-copy-label]');
+
+    try {
+        await navigator.clipboard.writeText(input.value);
+    } catch {
+        input.select();
+        document.execCommand('copy');
+    }
+    label.textContent = t('Copied!');
+    setTimeout(() => { label.textContent = t('Copy'); }, 2000);
+});
+
+/*
 | Form penjahit
 */
 const tailorForm = document.getElementById('tailor-form');

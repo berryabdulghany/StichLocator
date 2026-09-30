@@ -26,6 +26,7 @@
                     <li><a href="{{ route('login') }}" class="hover:text-navy-700">{{ __('Log in') }}</a></li>
                     <li><a href="{{ route('register') }}" class="hover:text-navy-700">{{ __('Sign up') }}</a></li>
                 @endauth
+                <li><a href="{{ route('mitra.login') }}" class="hover:text-navy-700">{{ __('For tailors (partner login)') }}</a></li>
             </ul>
         </nav>
     </div>

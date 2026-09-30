@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\PenjahitController;
 use App\Http\Controllers\ReviewReportController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\TrackController;
+use App\Http\Controllers\Mitra;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +27,12 @@ Route::get('/peta', [ExploreController::class, 'index'])->name('dashboard');
 
 // Detail penjahit (link yang bisa dibagikan), misalnya /penjahit/tailor-kebaya-bu-sri
 Route::get('/penjahit/{location:slug}', [PenjahitController::class, 'show'])->name('penjahit.show');
+
+// Statistik klik tombol WhatsApp / rute untuk mitra penjahit (dikirim lewat navigator.sendBeacon)
+Route::post('/penjahit/{location}/klik', [TrackController::class, 'store'])
+    ->whereNumber('location')
+    ->middleware('throttle:60,1')
+    ->name('penjahit.track');
 
 // Pratinjau rute (proxy ke OpenRouteService, API key tetap di server)
 Route::get('/rute', [RouteController::class, 'show'])
@@ -118,6 +126,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->parameters(['penjahit' => 'tailor'])
             ->names('tailors');
 
+        // Akun mitra penjahit: undangan / link atur ulang password, dan cabut akses
+        Route::post('/penjahit/{tailor}/undangan', [Admin\TailorAccountController::class, 'invite'])
+            ->middleware('throttle:20,1')->name('tailors.invite');
+        Route::delete('/penjahit/{tailor}/undangan', [Admin\TailorAccountController::class, 'cancelInvite'])->name('tailors.invite.cancel');
+        Route::delete('/penjahit/{tailor}/akun', [Admin\TailorAccountController::class, 'revoke'])->name('tailors.account.revoke');
+
         // Ulasan (moderasi)
         Route::get('/ulasan', [Admin\ReviewController::class, 'index'])->name('reviews.index');
         Route::get('/ulasan/ekspor', [Admin\ReviewController::class, 'export'])->name('reviews.export');
@@ -148,5 +162,57 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/admin', [Admin\AdminAccountController::class, 'index'])->name('admins.index');
         Route::post('/admin', [Admin\AdminAccountController::class, 'store'])->name('admins.store');
         Route::delete('/admin/{admin}', [Admin\AdminAccountController::class, 'destroy'])->name('admins.destroy');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Mitra penjahit (/mitra)
+|--------------------------------------------------------------------------
+| Akun dibuat lewat link undangan dari admin. Semua halaman bekerja pada
+| penjahit milik akun yang login, tidak ada ID penjahit di URL.
+*/
+Route::prefix('mitra')->name('mitra.')->group(function () {
+    Route::get('/', fn () => auth('tailor')->check()
+        ? redirect()->route('mitra.dashboard')
+        : redirect()->route('mitra.login'))->name('home');
+
+    Route::middleware('guest:tailor')->group(function () {
+        Route::get('/login', [Mitra\AuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [Mitra\AuthController::class, 'login'])
+            ->middleware('throttle:5,1')
+            ->name('login.submit');
+    });
+
+    // Link undangan / atur ulang password dari admin
+    Route::get('/undangan/{token}', [Mitra\InvitationController::class, 'show'])
+        ->middleware('throttle:30,1')
+        ->name('invitation.show');
+    Route::post('/undangan/{token}', [Mitra\InvitationController::class, 'accept'])
+        ->middleware('throttle:10,1')
+        ->name('invitation.accept');
+
+    Route::middleware(['auth:tailor', 'tailor.active'])->group(function () {
+        Route::post('/logout', [Mitra\AuthController::class, 'logout'])->name('logout');
+
+        Route::get('/dasbor', [Mitra\DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/profil', [Mitra\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profil', [Mitra\ProfileController::class, 'update'])->name('profile.update');
+
+        Route::post('/libur', [Mitra\ClosureController::class, 'update'])->name('closure.update');
+        Route::delete('/libur', [Mitra\ClosureController::class, 'destroy'])->name('closure.destroy');
+
+        Route::get('/ulasan', [Mitra\ReviewController::class, 'index'])->name('reviews.index');
+        Route::put('/ulasan/{review}/balasan', [Mitra\ReviewController::class, 'reply'])
+            ->middleware('throttle:30,1')
+            ->name('reviews.reply');
+        Route::delete('/ulasan/{review}/balasan', [Mitra\ReviewController::class, 'destroyReply'])->name('reviews.reply.destroy');
+
+        Route::get('/akun', [Mitra\AccountController::class, 'edit'])->name('account.edit');
+        Route::put('/akun', [Mitra\AccountController::class, 'update'])->name('account.update');
+        Route::put('/akun/password', [Mitra\AccountController::class, 'updatePassword'])
+            ->middleware('throttle:6,1')
+            ->name('account.password');
     });
 });

@@ -15,6 +15,12 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        // Mitra penjahit (akun dibuat lewat undangan admin)
+        'tailor' => [
+            'driver' => 'session',
+            'provider' => 'tailors',
+        ],
     ],
 
     'providers' => [
@@ -25,6 +31,11 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+
+        'tailors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TailorAccount::class,
         ],
     ],
 
