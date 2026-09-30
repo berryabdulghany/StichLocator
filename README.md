@@ -3,7 +3,7 @@
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-red?logo=laravel&logoColor=white)](https://laravel.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com)
-[![Tests](https://img.shields.io/badge/tests-86%20passed-brightgreen)](#-menjalankan-tes)
+[![Tests](https://github.com/berryabdulghany/StichLocator/actions/workflows/tests.yml/badge.svg)](https://github.com/berryabdulghany/StichLocator/actions/workflows/tests.yml)
 
 **StichLocator** adalah peta pencari penjahit di Kota Bandung. Pelanggan bisa membandingkan harga, mengecek jam buka, membaca ulasan, lalu langsung chat penjahit lewat WhatsApp. Penjahit mengelola halamannya sendiri lewat panel mitra, dan admin memoderasi semuanya dari panel admin.
 
@@ -124,7 +124,7 @@ Sebanyak 86 feature test mencakup:
 - akun mitra: undangan, balasan ulasan, libur sementara, statistik
 - bahasa, keamanan, dan proxy rute
 
-Tes memakai SQLite in-memory.
+Tes memakai SQLite in-memory. Tes yang sama juga dijalankan otomatis oleh **GitHub Actions** (PHP 8.2 & 8.3) di setiap push ke `main` dan setiap pull request; lihat `.github/workflows/tests.yml`.
 
 ---
 
