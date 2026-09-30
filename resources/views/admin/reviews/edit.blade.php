@@ -49,7 +49,7 @@
                 <legend class="label">{{ __('Tags') }}</legend>
                 <div class="flex flex-wrap gap-1.5">
                     @foreach ($reviewTags as $tag)
-                        <label class="cursor-pointer">
+                        <label class="relative cursor-pointer">
                             <input type="checkbox" name="tags[]" value="{{ $tag->value }}" class="peer sr-only"
                                    @checked(in_array($tag->value, old('tags', $review->tags ?? []), true))>
                             <span class="chip peer-checked:border-navy-700 peer-checked:bg-navy-50 peer-checked:text-navy-700 peer-focus-visible:ring-2 peer-focus-visible:ring-navy-600/60">{{ $tag->label() }}</span>

@@ -248,7 +248,7 @@
                         <legend class="sr-only">{{ __('Rating') }}</legend>
                         <div class="flex gap-1" data-star-input>
                             @for ($star = 1; $star <= 5; $star++)
-                                <label class="cursor-pointer text-2xl text-stone-300 transition" data-star="{{ $star }}">
+                                <label class="relative cursor-pointer text-2xl text-stone-300 transition" data-star="{{ $star }}">
                                     <input type="radio" name="rating" value="{{ $star }}" class="sr-only" @checked($star === 5) required>
                                     <span aria-hidden="true">★</span>
                                     <span class="sr-only">{{ trans_choice(':count star|:count stars', $star, ['count' => $star]) }}</span>
@@ -260,7 +260,7 @@
                     <fieldset class="flex flex-wrap gap-1.5">
                         <legend class="mb-1 text-xs text-stone-500">{{ __('What stood out? (optional)') }}</legend>
                         @foreach ($reviewTags as $tag)
-                            <label class="cursor-pointer">
+                            <label class="relative cursor-pointer">
                                 <input type="checkbox" name="tags[]" value="{{ $tag->value }}" class="peer sr-only">
                                 <span class="chip peer-checked:border-navy-700 peer-checked:bg-navy-50 peer-checked:text-navy-700 peer-focus-visible:ring-2 peer-focus-visible:ring-navy-600/60">
                                     {{ $tag->label() }}

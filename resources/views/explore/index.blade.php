@@ -129,7 +129,8 @@
                         {{ __('Open full page') }} <i class="ti ti-external-link" aria-hidden="true"></i>
                     </a>
                 </div>
-                <div id="drawer-body" class="flex-1 overflow-y-auto"></div>
+                {{-- relative: elemen absolut di dalam detail (mis. input sr-only) tetap terkurung di area scroll drawer --}}
+                <div id="drawer-body" class="relative flex-1 overflow-y-auto"></div>
             </aside>
         </div>
     </div>
