@@ -10,7 +10,7 @@
 
 > 🇬🇧 *A tailor-finder map for Bandung, Indonesia. Customers compare prices, opening hours, and reviews, then chat with tailors on WhatsApp. Tailors manage their own listing through a partner panel; admins moderate everything. Built with Laravel 11, Tailwind CSS, and Leaflet + MapLibre.*
 
-![Peta penjahit dengan detail "nota jahit" terbuka](screenshots/detail-penjahit.jpg)
+![Peta penjahit dengan detail "nota jahit" terbuka](screenshots/peta-detail.jpg)
 
 ---
 
@@ -72,12 +72,12 @@ StichLocator menjawab kedua masalah itu dengan **peta yang khusus untuk penjahit
 
 <table>
   <tr>
-    <td width="50%"><img src="screenshots/halaman-utama.jpg" alt="Halaman utama"><br><sub><b>Halaman utama:</b> pencarian layanan & wilayah</sub></td>
+    <td width="50%"><img src="screenshots/beranda.jpg" alt="Halaman utama"><br><sub><b>Halaman utama:</b> pencarian layanan & wilayah</sub></td>
     <td width="50%"><img src="screenshots/peta.jpg" alt="Peta penjahit"><br><sub><b>Peta:</b> chip kategori, daftar, dan pin rating</sub></td>
   </tr>
   <tr>
-    <td width="50%"><img src="screenshots/dashboard-admin.jpg" alt="Dasbor admin"><br><sub><b>Panel admin:</b> statistik & moderasi</sub></td>
-    <td width="50%"><img src="screenshots/dashboard-mitra.jpg" alt="Dasbor mitra penjahit"><br><sub><b>Panel mitra:</b> statistik 30 hari & libur sementara</sub></td>
+    <td width="50%"><img src="screenshots/panel-admin.jpg" alt="Dasbor admin"><br><sub><b>Panel admin:</b> statistik & moderasi</sub></td>
+    <td width="50%"><img src="screenshots/panel-mitra.jpg" alt="Dasbor mitra penjahit"><br><sub><b>Panel mitra:</b> statistik 30 hari & libur sementara</sub></td>
   </tr>
 </table>
 
