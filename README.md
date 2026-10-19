@@ -207,14 +207,6 @@ Contoh riwayat: `feat/fondasi-desain` → `feat/halaman-peta` → `feat/rute-lok
 
 ---
 
-## 🛣️ Roadmap
-- [ ] Deploy online dengan link demo publik
-- [ ] Notifikasi email (ulasan baru untuk mitra, lupa password tanpa lewat admin)
-- [ ] Penjahit favorit tersimpan di akun (saat ini di browser)
-- [ ] Halaman SEO per kategori & wilayah, misalnya "Penjahit kebaya di Coblong"
-
----
-
 ## 🙏 Kredit
 - Versi awal dibuat sebagai tugas kuliah bersama tim (repositori asal: [Ocauwyn/StichLocator](https://github.com/Ocauwyn/StichLocator)), lalu dikembangkan ulang oleh [@berryabdulghany](https://github.com/berryabdulghany).
 - Data peta © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, tiles dari [OpenFreeMap](https://openfreemap.org) / OpenMapTiles.
